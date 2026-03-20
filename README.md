@@ -1,3 +1,6 @@
+![Release](https://img.shields.io/github/v/release/urscaviezel/Loudnorm-PRO)
+![License](https://img.shields.io/github/license/urscaviezel/Loudnorm-PRO)
+
 # 🎧 Loudnorm PRO
 
 **Batch Audio Normalization GUI for FFmpeg (loudnorm)**  
