@@ -23,6 +23,8 @@ A fast and simple GUI for batch audio normalization using FFmpeg (loudnorm).
 * Python 3.10+
 * FFmpeg & FFprobe in PATH
 
+* (Windows users can download the EXE from Releases; Python is only needed to run from source.)
+
 ## 📦 Installation
 
 ```bash
