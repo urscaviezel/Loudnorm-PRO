@@ -28,7 +28,7 @@ A fast and simple GUI for batch audio normalization using FFmpeg (loudnorm).
 ## 📦 Installation
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/loudnorm-pro.git
+git clone https://github.com/urscaviezel/loudnorm-pro.git
 cd loudnorm-pro
 pip install -r requirements.txt
 python loudnorm_gui.py
