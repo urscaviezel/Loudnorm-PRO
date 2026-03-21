@@ -46,9 +46,10 @@ Make sure `ffmpeg.exe` and `ffprobe.exe` are available.
 ## 🚀 Usage
 
 1. Start the application  
-2. Select files or a folder  
-3. Choose audio/video settings  
-4. Click **Start**
+2. Select input files or a folder
+3. Select output folder
+4. Choose audio/video settings  
+5. Click **Start**
 
 ---
 
