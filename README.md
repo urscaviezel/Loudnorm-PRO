@@ -64,7 +64,7 @@ The app can automatically check for new versions on startup.
 
 ## 📸 Screenshot
 
-![Screenshot](screenshot.png)
+![Screenshot](screenshot_v1.0.2.png)
 
 ---
 
