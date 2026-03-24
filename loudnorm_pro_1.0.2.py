@@ -70,9 +70,9 @@ LOUDNORM_SUFFIX_RE = re.compile(r"(?:_loudnorm(?:_nvenc)?)$", re.IGNORECASE)
 RESUME_STATE_FILE = os.path.join(get_data_dir(), "loudnorm_resume_state.csv")
 SETTINGS_FILE = "loudnorm_settings.json"
 
-APP_VERSION = "1.0.1"
-BUILD_DATE = "2026-03-23 12:15"
-PROJECT_LICENSE_NOTICE = "Planned release license: GNU GPL v3"
+APP_VERSION = "1.0.2"
+BUILD_DATE = "2026-03-24 18:10"
+PROJECT_LICENSE_NOTICE = "Released under GNU GPL v3"
 GITHUB_REPO = "urscaviezel/Loudnorm-PRO"
 GITHUB_RELEASES_URL = f"https://github.com/{GITHUB_REPO}/releases"
 GITHUB_API_LATEST = f"https://api.github.com/repos/{GITHUB_REPO}/releases/latest"
@@ -162,6 +162,7 @@ UI_TEXT_EN = {
     "Sprache": "Language",
     "Keine aktiven Jobs": "No active jobs",
     "Originaldateien überschreiben": "Overwrite original files",
+    "Ursprünglichen Timestamp beibehalten": "Preserve original timestamp",
     "Temporärer Arbeitsordner": "Temporary work folder",
     "Unterbrochene Jobs fortsetzen": "Resume interrupted jobs",
     "Bereit": "Ready",
@@ -756,7 +757,7 @@ def set_path_timestamps(path: str, created: float | None = None, accessed: float
 class LoudnormApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("Loudnorm PRO GUI v1.0.0")
+        self.root.title(f"Loudnorm PRO GUI v{APP_VERSION}")
         self.root.geometry("1040x680")
         self.root.minsize(760, 540)
         self.root.configure(bg="#202020")
@@ -2885,8 +2886,11 @@ del "%~f0"
 
     def get_effective_temp_work_dir(self, input_file: str = "") -> str:
         custom_dir = sanitize_windows_config_path(self.temp_work_dir_var.get())
+
         if not custom_dir:
-            raise RuntimeError("Temp work dir is required when overwrite mode is enabled.")
+            if bool(self.overwrite_original_var.get()):
+                raise RuntimeError("Temp work dir is required when overwrite mode is enabled.")
+            return get_data_dir()
 
         try:
             custom_dir = os.path.normpath(custom_dir)
