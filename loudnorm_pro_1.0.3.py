@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import csv
 import ctypes
 from ctypes import wintypes
@@ -37,16 +38,23 @@ def get_app_dir() -> str:
 
 def get_data_dir() -> str:
     base_dir = get_app_dir()
-    portable_marker = os.path.join(base_dir, "portable.mode")
-    if os.path.exists(portable_marker):
+    portable_markers = [
+        os.path.join(base_dir, "portable.mode"),
+        os.path.join(base_dir, "portable.flag"),
+    ]
+    if any(os.path.exists(marker) for marker in portable_markers):
         os.makedirs(base_dir, exist_ok=True)
         return base_dir
 
-    local_appdata = os.environ.get("LOCALAPPDATA")
-    if local_appdata:
-        data_dir = os.path.join(local_appdata, "Loudnorm PRO")
+    if os.name == "nt":
+        local_appdata = os.environ.get("LOCALAPPDATA")
+        data_dir = os.path.join(local_appdata, "Loudnorm PRO") if local_appdata else base_dir
     else:
-        data_dir = base_dir
+        xdg_data_home = os.environ.get("XDG_DATA_HOME")
+        if xdg_data_home:
+            data_dir = os.path.join(xdg_data_home, "Loudnorm PRO")
+        else:
+            data_dir = os.path.join(os.path.expanduser("~"), ".local", "share", "Loudnorm PRO")
 
     os.makedirs(data_dir, exist_ok=True)
     return data_dir
@@ -60,17 +68,17 @@ CRASH_LOG = os.path.join(get_data_dir(), "loudnorm_gui_crash.log")
 MAX_JOB_ROWS = 8
 JOB_FRAME_BASE_HEIGHT = 52
 JOB_ROW_HEIGHT = 74
-VISIBLE_JOB_ROWS = 3
+VISIBLE_JOB_ROWS = 2
 PREVIEW_BASE_HEIGHT = 77
 PREVIEW_ROW_HEIGHT = 26
 PREVIEW_MIN_ROWS = 4
-PREVIEW_MAX_ROWS = 8
+PREVIEW_MAX_ROWS = 6
 NO_WINDOW = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
-LOUDNORM_SUFFIX_RE = re.compile(r"(?:_loudnorm(?:_nvenc)?)$", re.IGNORECASE)
+LOUDNORM_SUFFIX_RE = re.compile(r"(?:_loudnorm(?:_(?:nvenc|vaapi|x265|amf))?)$", re.IGNORECASE)
 RESUME_STATE_FILE = os.path.join(get_data_dir(), "loudnorm_resume_state.csv")
 SETTINGS_FILE = "loudnorm_settings.json"
 
-APP_VERSION = "1.0.2"
+APP_VERSION = "1.0.3"
 BUILD_DATE = "2026-03-24 18:10"
 PROJECT_LICENSE_NOTICE = "Released under GNU GPL v3"
 GITHUB_REPO = "urscaviezel/Loudnorm-PRO"
@@ -209,8 +217,8 @@ I18N_MSGS = {
         "done_title": "Fertig",
         "input_folder_not_found": "Eingabeordner nicht gefunden.",
         "ffmpeg_missing_title": "Fehler",
-        "ffmpeg_missing_message": "ffmpeg.exe wurde nicht gefunden.\n\nGesucht in:\n- EXE/Script-Ordner\n- .\\ffmpeg\\bin\\\n- C:\\ffmpeg\\bin\\",
-        "ffprobe_missing_message": "ffprobe.exe wurde nicht gefunden.\n\nGesucht in:\n- EXE/Script-Ordner\n- .\\ffmpeg\\bin\\\n- C:\\ffmpeg\\bin\\",
+        "ffmpeg_missing_message": "ffmpeg wurde nicht gefunden.\n\nGesucht in:\n- EXE/Script-Ordner\n- ./ffmpeg/bin/\n- PATH",
+        "ffprobe_missing_message": "ffprobe wurde nicht gefunden.\n\nGesucht in:\n- EXE/Script-Ordner\n- ./ffmpeg/bin/\n- PATH",
         "build_info_title": "Build-Info",
         "license_notice": "Lizenz-Hinweis:",
         "third_party": "Drittkomponenten:",
@@ -288,8 +296,8 @@ I18N_MSGS = {
         "done_title": "Done",
         "input_folder_not_found": "Input folder not found.",
         "ffmpeg_missing_title": "Error",
-        "ffmpeg_missing_message": "ffmpeg.exe was not found.\n\nSearched in:\n- EXE/Script folder\n- .\\ffmpeg\\bin\\\n- C:\\ffmpeg\\bin\\",
-        "ffprobe_missing_message": "ffprobe.exe was not found.\n\nSearched in:\n- EXE/Script folder\n- .\\ffmpeg\\bin\\\n- C:\\ffmpeg\\bin\\",
+        "ffmpeg_missing_message": "ffmpeg was not found.\n\nSearched in:\n- EXE/Script folder\n- ./ffmpeg/bin/\n- PATH",
+        "ffprobe_missing_message": "ffprobe was not found.\n\nSearched in:\n- EXE/Script folder\n- ./ffmpeg/bin/\n- PATH",
         "build_info_title": "Build info",
         "license_notice": "License notice:",
         "third_party": "Third-party components:",
@@ -364,6 +372,8 @@ def resolve_app_icon_path() -> str | None:
     candidates = [
         "loudnorm_pro_icon_optimized.ico",
         "loudnorm_pro_icon.ico",
+        os.path.join("assets", "loudnorm_pro_icon_optimized.ico"),
+        os.path.join("assets", "loudnorm_pro_icon.ico"),
     ]
     for name in candidates:
         path = resource_path(name)
@@ -378,6 +388,10 @@ def resolve_app_icon_photo_paths() -> list[str]:
         "loudnorm_pro_icon_32.png",
         "loudnorm_pro_icon_48.png",
         "loudnorm_pro_icon_optimized_256.png",
+        os.path.join("assets", "loudnorm_pro_icon_16.png"),
+        os.path.join("assets", "loudnorm_pro_icon_32.png"),
+        os.path.join("assets", "loudnorm_pro_icon_48.png"),
+        os.path.join("assets", "loudnorm_pro_icon_optimized_256.png"),
     ]
     result = []
     for name in candidates:
@@ -395,14 +409,45 @@ def get_app_dir() -> str:
 
 def resolve_tool_path(filename: str):
     app_dir = get_app_dir()
-    candidates = [
-        os.path.join(app_dir, filename),
-        os.path.join(app_dir, "ffmpeg", "bin", filename),
-        os.path.join(r"C:\ffmpeg\bin", filename),
+    requested = filename
+    base_name = filename[:-4] if filename.lower().endswith(".exe") else filename
+
+    names_to_try = []
+    if os.name == "nt":
+        for name in (requested, base_name, requested + ".exe", base_name + ".exe"):
+            if name and name not in names_to_try:
+                names_to_try.append(name)
+    else:
+        names_to_try.append(base_name)
+
+    candidates = []
+    search_roots = [
+        app_dir,
+        os.path.join(app_dir, "ffmpeg"),
+        os.path.join(app_dir, "ffmpeg", "bin"),
     ]
-    for path in candidates:
-        if os.path.exists(path):
-            return path
+
+    if os.name == "nt":
+        search_roots.extend([
+            r"C:\ffmpeg",
+            r"C:\ffmpeg\bin",
+        ])
+
+    for root in search_roots:
+        for name in names_to_try:
+            candidate = os.path.join(root, name)
+            if candidate not in candidates:
+                candidates.append(candidate)
+
+    for candidate in candidates:
+        if candidate and os.path.exists(candidate):
+            return candidate
+
+    for name in names_to_try:
+        found = shutil.which(name)
+        if found:
+            return found
+
     return None
 
 
@@ -758,8 +803,8 @@ class LoudnormApp:
     def __init__(self, root):
         self.root = root
         self.root.title(f"Loudnorm PRO GUI v{APP_VERSION}")
-        self.root.geometry("1040x680")
-        self.root.minsize(760, 540)
+        self.root.geometry("980x640")
+        self.root.minsize(820, 520)
         self.root.configure(bg="#202020")
         self._app_icon_photos = []
         try:
@@ -772,7 +817,7 @@ class LoudnormApp:
             self._app_icon_photos = []
         try:
             icon_path = resolve_app_icon_path()
-            if icon_path:
+            if icon_path and os.name == "nt":
                 self.root.iconbitmap(default=icon_path)
         except Exception:
             pass
@@ -792,8 +837,9 @@ class LoudnormApp:
         self.completed_times = []
         self.completed_times_for_eta = []
 
-        self.ffmpeg_path = resolve_tool_path("ffmpeg.exe")
-        self.ffprobe_path = resolve_tool_path("ffprobe.exe")
+        self.ffmpeg_path = resolve_tool_path("ffmpeg")
+        self.ffprobe_path = resolve_tool_path("ffprobe")
+        self.detect_video_encoders()
 
         self.file_list = []
         self.preview_file_path = None
@@ -923,8 +969,18 @@ class LoudnormApp:
             if "resume_jobs" in data:
                 self.resume_jobs_var.set(bool(data["resume_jobs"]))
 
-            if data.get("video") in {"COPY", "HEVC NVENC"}:
-                self.video_var.set(data["video"])
+            if data.get("video") == "COPY":
+                self.video_var.set("COPY")
+            elif data.get("video") == "HEVC NVENC" and self.hevc_nvenc_available:
+                self.video_var.set("HEVC NVENC")
+            elif data.get("video") == "HEVC AMF" and getattr(self, "hevc_amf_available", False):
+                self.video_var.set("HEVC AMF")
+            elif data.get("video") == "HEVC VAAPI" and self.hevc_vaapi_available:
+                self.video_var.set("HEVC VAAPI")
+            elif data.get("video") == "HEVC x265 (CPU)" and self.hevc_x265_available:
+                self.video_var.set("HEVC x265 (CPU)")
+            else:
+                self.video_var.set("COPY")
             val = data.get("video_preset")
             if isinstance(val, str):
                 self.video_preset_var.set(val)
@@ -1064,9 +1120,8 @@ class LoudnormApp:
         )
         self.btn_update.grid(row=0, column=5, sticky="e", padx=(6, 0), ipady=2, ipadx=8)
 
-        self.left_shell = tk.Frame(self.main, bg="#202020", width=340)
+        self.left_shell = tk.Frame(self.main, bg="#202020")
         self.left_shell.grid(row=1, column=0, sticky="nsew", padx=(0, 8))
-        self.left_shell.grid_propagate(False)
         self.left_shell.grid_rowconfigure(1, weight=1)
         self.left_shell.grid_columnconfigure(0, weight=1)
 
@@ -1123,6 +1178,9 @@ class LoudnormApp:
         self._build_right_column()
 
         self.update_parallel_ui()
+        self.update_video_options_ui()
+        self.update_video_preset_ui()
+        self.update_video_bitrate_ui()
         self.update_job_rows_visibility()
         self.update_tool_labels()
         self.update_audio_track_mode_hint()
@@ -1592,6 +1650,23 @@ class LoudnormApp:
     def _finish_update_install(self, download_path: str):
         if not getattr(sys, "frozen", False):
             return
+
+        if os.name != "nt":
+            self.log(self.msg("update_download_finished"))
+            try:
+                parent_dir = os.path.dirname(download_path) or get_app_dir()
+                subprocess.Popen(["xdg-open", parent_dir])
+            except Exception:
+                pass
+            try:
+                if self.get_lang_code() == "de":
+                    messagebox.showinfo("Update", f"Das Update wurde heruntergeladen:\n{download_path}\n\nBitte die neue Linux-Version manuell installieren/ersetzen.")
+                else:
+                    messagebox.showinfo("Update", f"The update was downloaded:\n{download_path}\n\nPlease install/replace the new Linux build manually.")
+            except Exception:
+                pass
+            return
+
         current_exe = sys.executable
         updater_bat = os.path.join(tempfile.gettempdir(), f"loudnorm_updater_{int(time.time())}.bat")
         bat = f"""@echo off
@@ -1637,7 +1712,13 @@ del "%~f0"
         dlg.transient(self.root)
         dlg.resizable(False, False)
         try:
-            dlg.iconbitmap(resource_path("loudnorm_pro_icon.ico"))
+            if os.name == "nt":
+                dlg.iconbitmap(resolve_app_icon_path() or resource_path("loudnorm_pro_icon.ico"))
+        except Exception:
+            pass
+        try:
+            if self._app_icon_photos:
+                dlg.iconphoto(True, *self._app_icon_photos)
         except Exception:
             pass
 
@@ -2277,7 +2358,7 @@ del "%~f0"
         self.video_combo = ttk.Combobox(
             self.control_frame,
             textvariable=self.video_var,
-            values=["COPY", "HEVC NVENC"],
+            values=self.get_video_mode_options(),
             state="readonly",
             font=("Segoe UI", 10),
         )
@@ -2287,7 +2368,7 @@ del "%~f0"
         self.video_preset_combo = ttk.Combobox(
             self.control_frame,
             textvariable=self.video_preset_var,
-            values=["p7 slow", "p6 slower", "p5 balanced", "p4 faster", "p3 fastest"],
+            values=self.get_video_preset_options(),
             state="readonly",
             font=("Segoe UI", 10),
         )
@@ -2297,7 +2378,7 @@ del "%~f0"
         self.video_bitrate_combo = ttk.Combobox(
             self.control_frame,
             textvariable=self.video_bitrate_var,
-            values=["CQ 19 (quality)", "4 Mbps", "8 Mbps", "12 Mbps", "20 Mbps", "30 Mbps"],
+            values=self.get_video_bitrate_options(),
             state="readonly",
             font=("Segoe UI", 10),
         )
@@ -2793,6 +2874,162 @@ del "%~f0"
         self.update_preview_toggle_ui()
 
 
+    def has_nvidia_runtime(self) -> bool:
+        if os.name == "nt":
+            return self.detect_windows_gpu_vendor() == "nvidia"
+        markers = [
+            "/dev/nvidia0",
+            "/dev/nvidiactl",
+            "/proc/driver/nvidia/version",
+        ]
+        return any(os.path.exists(marker) for marker in markers) or bool(shutil.which("nvidia-smi"))
+
+    def detect_windows_gpu_vendor(self) -> str:
+        if os.name != "nt":
+            return ""
+        commands = [
+            ["wmic", "path", "win32_VideoController", "get", "name"],
+            ["powershell", "-NoProfile", "-Command", "(Get-CimInstance Win32_VideoController | Select-Object -ExpandProperty Name) -join \"`n\""],
+        ]
+        for cmd in commands:
+            try:
+                proc = subprocess.run(
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True,
+                    encoding="utf-8",
+                    errors="replace",
+                    creationflags=NO_WINDOW,
+                    timeout=8,
+                )
+                info = ((proc.stdout or "") + "\n" + (proc.stderr or "")).lower()
+                if "nvidia" in info:
+                    return "nvidia"
+                if any(marker in info for marker in ("amd", "radeon", "advanced micro devices")):
+                    return "amd"
+                if "intel" in info:
+                    return "intel"
+            except Exception:
+                pass
+        return ""
+
+    def has_amf_runtime(self) -> bool:
+        return os.name == "nt" and self.ffmpeg_encoder_available("hevc_amf") and self.detect_windows_gpu_vendor() == "amd"
+
+    def has_vaapi_runtime(self) -> bool:
+        if os.name == "nt":
+            return False
+        dri_path = "/dev/dri"
+        if not os.path.isdir(dri_path):
+            return False
+        try:
+            return any(name.startswith("renderD") for name in os.listdir(dri_path))
+        except Exception:
+            return False
+
+    def get_vaapi_render_device(self) -> str | None:
+        if not self.has_vaapi_runtime():
+            return None
+        dri_path = "/dev/dri"
+        preferred = os.path.join(dri_path, "renderD128")
+        if os.path.exists(preferred):
+            return preferred
+        try:
+            for name in sorted(os.listdir(dri_path)):
+                if name.startswith("renderD"):
+                    candidate = os.path.join(dri_path, name)
+                    if os.path.exists(candidate):
+                        return candidate
+        except Exception:
+            pass
+        return None
+
+    def ffmpeg_encoder_available(self, encoder_name: str) -> bool:
+        if not self.ffmpeg_path:
+            return False
+
+        try:
+            proc = subprocess.run(
+                [self.ffmpeg_path, "-hide_banner", "-encoders"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                creationflags=NO_WINDOW,
+                timeout=8,
+            )
+            output = (proc.stdout or "") + "\n" + (proc.stderr or "")
+            return encoder_name.lower() in output.lower()
+        except Exception:
+            return False
+
+    def detect_video_encoders(self) -> None:
+        encoder_nvenc = self.ffmpeg_encoder_available("hevc_nvenc")
+        encoder_vaapi = self.ffmpeg_encoder_available("hevc_vaapi")
+        encoder_amf = self.ffmpeg_encoder_available("hevc_amf")
+        encoder_x265 = self.ffmpeg_encoder_available("libx265")
+
+        self.hevc_nvenc_available = False
+        self.hevc_vaapi_available = False
+        self.hevc_amf_available = False
+        self.hevc_x265_available = bool(encoder_x265)
+
+        if os.name == "nt":
+            vendor = self.detect_windows_gpu_vendor()
+            self.hevc_nvenc_available = bool(encoder_nvenc and vendor == "nvidia")
+            self.hevc_amf_available = bool(encoder_amf and vendor == "amd")
+            self.hevc_vaapi_available = False
+        else:
+            self.hevc_nvenc_available = bool(encoder_nvenc and self.has_nvidia_runtime())
+            self.hevc_vaapi_available = bool(encoder_vaapi and self.has_vaapi_runtime())
+            self.hevc_amf_available = False
+
+    def get_video_mode_options(self):
+        options = ["COPY"]
+        if getattr(self, "hevc_nvenc_available", False):
+            options.append("HEVC NVENC")
+        if getattr(self, "hevc_amf_available", False):
+            options.append("HEVC AMF")
+        if getattr(self, "hevc_vaapi_available", False):
+            options.append("HEVC VAAPI")
+        if getattr(self, "hevc_x265_available", False):
+            options.append("HEVC x265 (CPU)")
+        return options
+
+    def get_video_preset_options(self):
+        mode = self.video_var.get()
+        if mode == "HEVC AMF":
+            return ["p7 slow", "p6 slower", "p5 balanced", "p4 faster", "p3 fastest"]
+        if mode == "HEVC NVENC":
+            return ["p7 slow", "p6 slower", "p5 balanced", "p4 faster", "p3 fastest"]
+        if mode == "HEVC VAAPI":
+            return ["p7 slow", "p6 slower", "p5 balanced", "p4 faster", "p3 fastest"]
+        return ["-"]
+
+    def get_video_bitrate_options(self):
+        mode = self.video_var.get()
+        if mode in {"HEVC NVENC", "HEVC AMF", "HEVC VAAPI"}:
+            return ["CQ 19 (quality)", "4 Mbps", "8 Mbps", "12 Mbps", "20 Mbps", "30 Mbps"]
+        return ["-"]
+
+    def update_video_preset_ui(self):
+        options = self.get_video_preset_options()
+        try:
+            self.video_preset_combo.configure(values=options)
+        except Exception:
+            return
+        if self.video_preset_var.get() not in options:
+            self.video_preset_var.set(options[0])
+
+    def update_video_bitrate_ui(self):
+        options = self.get_video_bitrate_options()
+        try:
+            self.video_bitrate_combo.configure(values=options)
+        except Exception:
+            return
+        if self.video_bitrate_var.get() not in options:
+            self.video_bitrate_var.set(options[0])
+
     def get_audio_bitrate_options(self):
         if self.audio_var.get() == "E-AC3":
             return ["192k", "256k", "384k", "448k", "640k"]
@@ -2808,9 +3045,26 @@ del "%~f0"
             self.audio_bitrate_var.set(options[-1] if self.audio_var.get() == "AAC" else "640k")
 
     def update_video_options_ui(self):
-        is_nvenc = self.video_var.get() == "HEVC NVENC"
-        preset_state = "readonly" if is_nvenc else "disabled"
-        bitrate_state = "readonly" if is_nvenc else "disabled"
+        options = self.get_video_mode_options()
+        try:
+            self.video_combo.configure(values=options)
+        except Exception:
+            pass
+
+        current_video = self.video_var.get()
+        if current_video == "HEVC NVENC" and not self.hevc_nvenc_available:
+            self.video_var.set("COPY")
+        elif current_video == "HEVC AMF" and not getattr(self, "hevc_amf_available", False):
+            self.video_var.set("COPY")
+        elif current_video == "HEVC VAAPI" and not self.hevc_vaapi_available:
+            self.video_var.set("COPY")
+        elif current_video == "HEVC x265 (CPU)" and not self.hevc_x265_available:
+            self.video_var.set("COPY")
+
+        supports_preset = self.video_var.get() in {"HEVC NVENC", "HEVC AMF", "HEVC VAAPI"}
+        supports_bitrate = self.video_var.get() in {"HEVC NVENC", "HEVC AMF", "HEVC VAAPI"}
+        preset_state = "readonly" if supports_preset else "disabled"
+        bitrate_state = "readonly" if supports_bitrate else "disabled"
         try:
             self.video_preset_combo.config(state=preset_state)
             self.video_bitrate_combo.config(state=bitrate_state)
@@ -3057,7 +3311,7 @@ del "%~f0"
             return
 
         if not self.ffprobe_path:
-            self.ffprobe_path = resolve_tool_path("ffprobe.exe")
+            self.ffprobe_path = resolve_tool_path("ffprobe")
 
         display_path = os.path.basename(target_file)
         self.audio_preview_file_var.set((f"Datei: {display_path}") if lang == "de" else (f"File: {display_path}"))
@@ -3658,11 +3912,17 @@ del "%~f0"
 
         if overwrite_original:
             final_output = input_file
-            temp_work_dir = self.get_effective_temp_work_dir(input_file)
-            if not temp_work_dir or not os.path.isdir(temp_work_dir):
-                raise RuntimeError(f"Invalid temp work dir: {temp_work_dir}")
-            tmp_name = f"{p.stem}.__ln_tmp__{p.suffix}"
-            output_file = os.path.join(temp_work_dir, tmp_name)
+            is_amf_encode = "_amf" in (tag or "").lower()
+            if is_amf_encode:
+                # Keep AMF overwrite temp files next to the source file for maximum compatibility.
+                tmp_name = f"{p.stem}.__ln_tmp_amf__{p.suffix}"
+                output_file = os.path.join(os.path.dirname(input_file), tmp_name)
+            else:
+                temp_work_dir = self.get_effective_temp_work_dir(input_file)
+                if not temp_work_dir or not os.path.isdir(temp_work_dir):
+                    raise RuntimeError(f"Invalid temp work dir: {temp_work_dir}")
+                tmp_name = f"{p.stem}.__ln_tmp__{p.suffix}"
+                output_file = os.path.join(temp_work_dir, tmp_name)
             existing_candidates = []
         else:
             final_output = os.path.join(target_dir, p.stem + tag + p.suffix)
@@ -3671,6 +3931,7 @@ del "%~f0"
                 os.path.join(target_dir, p.name),
                 os.path.join(target_dir, p.stem + "_loudnorm" + p.suffix),
                 os.path.join(target_dir, p.stem + "_loudnorm_nvenc" + p.suffix),
+                os.path.join(target_dir, p.stem + "_loudnorm_amf" + p.suffix),
             ]
 
         input_base = normalize_name(p.stem)
@@ -3885,8 +4146,12 @@ del "%~f0"
                 "-filter_complex", filter_str,
                 "-map_metadata", "0",
                 "-map_chapters", "0",
-                "-map", "0:v?",
             ]
+
+            if any(arg in video_args for arg in ["hevc_nvenc", "hevc_vaapi", "libx265", "hevc_amf"]):
+                pass2_args += ["-map", "0:v:0?"]
+            else:
+                pass2_args += ["-map", "0:v?"]
 
             for input_audio_idx in output_audio_order:
                 if input_audio_idx in loudnorm_stats:
@@ -3924,7 +4189,7 @@ del "%~f0"
                     disposition_parts.append("forced")
                 pass2_args += [f"-disposition:a:{output_audio_idx}", "+".join(disposition_parts) if disposition_parts else "0"]
 
-            pass2_args += ["-c:s", "copy", "-c:d", "copy", "-c:t", "copy", ctx["Output"]]
+            pass2_args += ["-c:s", "copy", "-c:d", "copy", "-c:t", "copy", ctx.get("EncodeOutput", ctx["Output"])]
 
             _, _, pass2_err, cancelled = self.run_ffmpeg_with_progress(
                 pass2_args,
@@ -4024,11 +4289,18 @@ del "%~f0"
 
             if overwrite_original:
                 final_output = input_file
-                temp_work_dir = self.get_effective_temp_work_dir(input_file)
-                if not temp_work_dir or not os.path.isdir(temp_work_dir):
-                    raise RuntimeError(f"Invalid temp work dir: {temp_work_dir}")
-                tmp_name = f"{p.stem}.__ln_tmp__{p.suffix}"
-                output_file = os.path.join(temp_work_dir, tmp_name)
+                is_amf_encode = any(arg == "hevc_amf" for arg in (video_args or []))
+                if is_amf_encode:
+                    # AMF is more stable when writing the temp output next to the input file
+                    # instead of a separate temp work dir.
+                    tmp_name = f"{p.stem}.__ln_tmp_amf__{p.suffix}"
+                    output_file = os.path.join(os.path.dirname(input_file), tmp_name)
+                else:
+                    temp_work_dir = self.get_effective_temp_work_dir(input_file)
+                    if not temp_work_dir or not os.path.isdir(temp_work_dir):
+                        raise RuntimeError(f"Invalid temp work dir: {temp_work_dir}")
+                    tmp_name = f"{p.stem}.__ln_tmp__{p.suffix}"
+                    output_file = os.path.join(temp_work_dir, tmp_name)
                 existing_candidates = []
             else:
                 final_output = os.path.join(target_dir, p.stem + tag + p.suffix)
@@ -4188,8 +4460,12 @@ del "%~f0"
                 "-filter_complex", filter_str,
                 "-map_metadata", "0",
                 "-map_chapters", "0",
-                "-map", "0:v?",
             ]
+
+            if any(arg in video_args for arg in ["hevc_nvenc", "hevc_vaapi", "libx265", "hevc_amf"]):
+                pass2_args += ["-map", "0:v:0?"]
+            else:
+                pass2_args += ["-map", "0:v?"]
 
             for input_audio_idx in output_audio_order:
                 if input_audio_idx in loudnorm_stats:
@@ -4451,7 +4727,7 @@ del "%~f0"
                 audio_codec = "aac"
             audio_bitrate = self.audio_bitrate_var.get().strip() or ("640k" if audio_codec == "eac3" else "384k")
 
-            if self.video_var.get() == "HEVC NVENC":
+            if self.video_var.get() == "HEVC NVENC" and self.hevc_nvenc_available:
                 video_mode = "NVENC"
                 video_preset = (self.video_preset_var.get().strip().split()[0] or "p5")
                 video_bitrate_choice = self.video_bitrate_var.get().strip()
@@ -4465,7 +4741,90 @@ del "%~f0"
                     bufsize = f"{int(bitrate_num) * 2}M"
                     video_args = ["-c:v", "hevc_nvenc", "-preset", video_preset, "-b:v", target, "-maxrate", maxrate, "-bufsize", bufsize]
                 tag = "_loudnorm_nvenc"
+            elif self.video_var.get() == "HEVC AMF" and getattr(self, "hevc_amf_available", False):
+                video_mode = "AMF"
+                video_preset = (self.video_preset_var.get().strip() or "p5 balanced")
+                video_bitrate_choice = self.video_bitrate_var.get().strip()
+                amf_quality_map = {
+                    "p7 slow": "quality",
+                    "p6 slower": "quality",
+                    "p5 balanced": "balanced",
+                    "p4 faster": "speed",
+                    "p3 fastest": "speed",
+                }
+                amf_quality = amf_quality_map.get(video_preset, "balanced")
+                bitrate_num = "".join(ch for ch in video_bitrate_choice if ch.isdigit()) or "5"
+                target = f"{bitrate_num}M"
+                video_args = [
+                    "-c:v", "hevc_amf",
+                    "-quality", amf_quality,
+                    "-b:v", target,
+                ]
+                tag = "_loudnorm_amf"
+            elif self.video_var.get() == "HEVC VAAPI" and self.hevc_vaapi_available:
+                render_device = self.get_vaapi_render_device()
+                if not render_device:
+                    raise RuntimeError("VAAPI render device not found.")
+                video_mode = "VAAPI"
+                video_preset = (self.video_preset_var.get().strip() or "p5 balanced")
+                video_bitrate_choice = (self.video_bitrate_var.get().strip() or "CQ 19 (quality)")
+                vaapi_qp_map = {
+                    "p7 slow": "20",
+                    "p6 slower": "21",
+                    "p5 balanced": "23",
+                    "p4 faster": "25",
+                    "p3 fastest": "27",
+                }
+                vaapi_qp = vaapi_qp_map.get(video_preset, "23")
+                video_args = [
+                    "-vaapi_device", render_device,
+                    "-filter:v:0", "format=nv12,hwupload",
+                    "-c:v:0", "hevc_vaapi",
+                    "-profile:v:0", "main",
+                ]
+                if video_bitrate_choice == "CQ 19 (quality)":
+                    video_args += [
+                        "-rc_mode:v:0", "CQP",
+                        "-qp:v:0", vaapi_qp,
+                    ]
+                    video_bitrate_choice = f"CQP {vaapi_qp}"
+                else:
+                    bitrate_num = "".join(ch for ch in video_bitrate_choice if ch.isdigit()) or "8"
+                    video_args += [
+                        "-rc_mode:v:0", "VBR",
+                        "-b:v:0", f"{bitrate_num}M",
+                        "-maxrate:v:0", f"{bitrate_num}M",
+                    ]
+                    video_bitrate_choice = f"{bitrate_num} Mbps"
+                video_args += ["-bf:v:0", "0"]
+                tag = "_loudnorm_vaapi"
+            elif self.video_var.get() == "HEVC x265 (CPU)" and self.hevc_x265_available:
+                video_mode = "x265"
+                video_preset = "medium"
+                video_bitrate_choice = "CRF 23"
+                video_args = ["-c:v:0", "libx265", "-preset:v:0", "medium", "-crf:v:0", "23"]
+                tag = "_loudnorm_x265"
             else:
+                if self.video_var.get() == "HEVC NVENC" and not self.hevc_nvenc_available:
+                    try:
+                        self.ui(self.log, f"{display_name}: NVENC nicht verfügbar -> COPY wird verwendet.")
+                    except Exception:
+                        pass
+                elif self.video_var.get() == "HEVC AMF" and not getattr(self, "hevc_amf_available", False):
+                    try:
+                        self.ui(self.log, f"{display_name}: AMF nicht verfügbar -> COPY wird verwendet.")
+                    except Exception:
+                        pass
+                elif self.video_var.get() == "HEVC VAAPI" and not self.hevc_vaapi_available:
+                    try:
+                        self.ui(self.log, f"{display_name}: VAAPI nicht verfügbar -> COPY wird verwendet.")
+                    except Exception:
+                        pass
+                elif self.video_var.get() == "HEVC x265 (CPU)" and not self.hevc_x265_available:
+                    try:
+                        self.ui(self.log, f"{display_name}: x265 nicht verfügbar -> COPY wird verwendet.")
+                    except Exception:
+                        pass
                 video_mode = "COPY"
                 video_args = ["-c:v", "copy"]
                 video_preset = "-"
@@ -4481,11 +4840,11 @@ del "%~f0"
             self.ui(self.log, f"Input    : {input_root}")
             self.ui(self.log, f"Output   : {output_root}")
             self.ui(self.log, f"Audio    : {audio_codec} ({audio_bitrate})")
-            if video_mode == "NVENC":
+            if video_mode in {"NVENC", "AMF", "VAAPI", "x265"}:
                 self.ui(self.log, f"{'VideoCfg' if lang == 'de' else 'VideoCfg'} : {video_preset} / {video_bitrate_choice}")
             self.ui(self.log, f"{'AudioMod' if lang == 'de' else 'AudioMode'} : {self.get_audio_mode_log_text()}")
             self.ui(self.log, f"Video    : {video_mode}")
-            if video_mode == "NVENC" and self.jobs_var.get().strip().lower() == "auto":
+            if video_mode in {"NVENC", "AMF", "VAAPI", "x265"} and self.jobs_var.get().strip().lower() == "auto":
                 self.ui(self.log, f"{'Analyse' if lang == 'de' else 'Analysis'}  : {analysis_jobs}")
                 self.ui(self.log, f"Encode   : {parallel_jobs}")
             else:
@@ -4637,8 +4996,8 @@ del "%~f0"
         if self.worker_thread and self.worker_thread.is_alive():
             return
 
-        self.ffmpeg_path = resolve_tool_path("ffmpeg.exe")
-        self.ffprobe_path = resolve_tool_path("ffprobe.exe")
+        self.ffmpeg_path = resolve_tool_path("ffmpeg")
+        self.ffprobe_path = resolve_tool_path("ffprobe")
         self.update_tool_labels()
 
         self.cancel_requested = False
@@ -4773,6 +5132,8 @@ del "%~f0"
     def on_video_changed(self):
         self.update_parallel_ui()
         self.update_video_options_ui()
+        self.update_video_preset_ui()
+        self.update_video_bitrate_ui()
         self.update_job_rows_visibility()
         self.schedule_audio_preview_refresh()
 
@@ -4787,7 +5148,7 @@ del "%~f0"
 
     def detect_auto_parallel_jobs(self) -> int:
         cpu_count = os.cpu_count() or 4
-        if self.video_var.get() == "HEVC NVENC":
+        if self.video_var.get() in {"HEVC NVENC", "HEVC AMF"}:
             return max(2, min(4, cpu_count // 4 or 2))
         return max(2, min(MAX_JOB_ROWS, cpu_count // 2 or 2))
 
@@ -4800,7 +5161,7 @@ del "%~f0"
         current = self.jobs_var.get().strip()
         if current.lower() == "auto":
             effective = self.get_parallel_jobs()
-            if self.video_var.get() == "HEVC NVENC":
+            if self.video_var.get() in {"HEVC NVENC", "HEVC AMF"}:
                 self.parallel_hint_var.set(
                     self.msg("parallel_auto_analysis_encode", analysis=auto_nvenc_analysis, encode=effective, copy=auto_copy, nvenc=auto_nvenc_encode)
                 )
