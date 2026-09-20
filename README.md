@@ -60,7 +60,7 @@ Supports modern hardware acceleration:
 
 * FFmpeg included OR installed in:
 
-  * `C:\\ffmpeg\\bin`
+  * `C:\ffmpeg\bin`
   * PATH
 
 ### Linux
