@@ -16,6 +16,8 @@ Supports modern hardware acceleration:
 
 * 🎧 EBU R128 loudness normalization (2-pass loudnorm)
 * 🎬 Batch processing (multiple files or folders)
+* 📹 WebM input support (automatic MKV output for codec compatibility)
+* 📝 Drag & Drop support for filenames containing spaces and special characters
 * ⚡ Hardware encoding support:
 
   * HEVC NVENC (NVIDIA)
@@ -32,12 +34,16 @@ Supports modern hardware acceleration:
 
 ## 📦 Downloads
 
-### Windows
+### Source
+
+* Current source: `loudnorm_pro_1.0.4.py`
+
+### Windows (v1.0.3 binaries)
 
 * Installer: `Loudnorm_PRO_Setup_v1.0.3.exe`
 * Portable: `Loudnorm_PRO_v1.0.3_portable.zip`
 
-### Linux
+### Linux (v1.0.3 binary)
 
 * Archive: `Loudnorm_PRO_linux_x86_64.tar.gz`
 
@@ -54,7 +60,7 @@ Supports modern hardware acceleration:
 
 * FFmpeg included OR installed in:
 
-  * `C:\ffmpeg\bin`
+  * `C:\\ffmpeg\\bin`
   * PATH
 
 ### Linux
@@ -126,7 +132,9 @@ Example:
 
 ## ⚠️ Notes
 
-* Overwrite replaces original file **only after successful processing**
+* WebM sources are written as MKV so AAC, E-AC3 and optional HEVC remain container-compatible
+* WebM source files are preserved when overwrite mode is selected
+* Overwrite replaces original files **only after successful processing**
 * Temporary files are used to prevent data loss
 * Hardware encoding availability depends on your system and drivers
 
