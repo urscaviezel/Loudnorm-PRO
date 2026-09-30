@@ -12,6 +12,8 @@ Supports modern hardware acceleration:
 
 ---
 
+![Loudnorm-Pro](Screenshot.png)
+
 ## 🚀 Features
 
 * 🎧 EBU R128 loudness normalization (2-pass loudnorm)
