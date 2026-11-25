@@ -3,9 +3,17 @@
 Batch-Lautheitsnormalisierung für Videos nach **EBU R128** (2-Pass `loudnorm`) mit FFmpeg und Hardware-Encoding.
 Läuft nativ auf **Windows, macOS (Apple Silicon/Intel) und Linux**.
 
-> Practical tests passed on Windows 11 and CachyOS. The Apple Silicon DMG is notarized and the installed app was launched on macOS.
->
-> [Downloads](https://github.com/urscaviezel/Loudnorm-PRO/releases) · [Report a bug](https://github.com/urscaviezel/Loudnorm-PRO/issues)
+Praxistests unter Windows 11 und CachyOS verliefen erfolgreich. Das DMG für Apple Silicon ist notarisiert. Der Start der installierten App wurde auf macOS geprüft.
+
+[Version 2.0.0 herunterladen](https://github.com/urscaviezel/Loudnorm-PRO/releases/tag/v2.0.0) · [Fehler melden](https://github.com/urscaviezel/Loudnorm-PRO/issues)
+
+![Loudnorm PRO 2.0.0 bei der parallelen Analyse von acht Videodateien](Screenshot_v2.0.0.png)
+
+## Windows-Update von v1.0.4 auf v2.0.0
+
+Die Updatesuche in v1.0.4 erkennt v2.0.0 und lädt den Installer herunter. Das Setup installiert v2 standardmässig im eigenen Ordner `Loudnorm PRO 2`. Beide Versionen können parallel installiert bleiben. Auch bei Auswahl des bisherigen Installationsordners bleibt v1 installiert. Wer nur v2 verwenden möchte, kann v1 über die installierten Apps in Windows manuell deinstallieren.
+
+Loudnorm PRO 2.0.0 startet nach der Installation mit normalen Benutzerrechten.
 
 ---
 
