@@ -1,0 +1,393 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:LoudnormPro.App.ViewModels"
+        xmlns:l="using:LoudnormPro.App.Localization"
+        mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="820"
+        x:Class="LoudnormPro.App.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="Loudnorm PRO"
+        Icon="/Assets/loudnorm.ico"
+        Width="1280" Height="820" MinWidth="748" MinHeight="240"
+        WindowStartupLocation="CenterScreen"
+        DragDrop.AllowDrop="True">
+
+  <Window.Styles>
+    <!-- Drop-Zone hervorheben, solange etwas ueber das Fenster gezogen wird -->
+    <Style Selector="Rectangle#DropZone.active">
+      <Setter Property="Stroke" Value="{DynamicResource LnAccent}" />
+    </Style>
+    <Style Selector="Ellipse.dot.missing">
+      <Setter Property="Fill" Value="{DynamicResource LnErr}" />
+    </Style>
+  </Window.Styles>
+
+  <ScrollViewer x:Name="WindowViewport" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+  <DockPanel Height="{Binding #WindowViewport.Bounds.Height}"
+             MinHeight="490">
+
+    <!-- ============ Menueleiste ============ -->
+    <Border DockPanel.Dock="Top" Background="{DynamicResource LnSurface}" BorderBrush="{DynamicResource LnBorder}" BorderThickness="0,0,0,1"
+            Padding="6,0" MinHeight="32">
+      <Grid ColumnDefinitions="*,Auto">
+        <NativeMenuBar VerticalAlignment="Center" />
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center" Margin="0,0,6,0">
+          <Border Classes="chip" ToolTip.Tip="{Binding FfmpegPath}">
+            <StackPanel Orientation="Horizontal" Spacing="5">
+              <Ellipse Classes="dot" Classes.off="{Binding !FfmpegOk}" />
+              <TextBlock Text="{Binding FfmpegChipText}" />
+            </StackPanel>
+          </Border>
+          <ItemsControl ItemsSource="{Binding HeaderEncoders}">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <StackPanel Orientation="Horizontal" Spacing="6" />
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:EncoderChipViewModel">
+                <Border Classes="chip" ToolTip.Tip="{Binding ToolTip}">
+                  <StackPanel Orientation="Horizontal" Spacing="5">
+                    <Ellipse Classes="dot" />
+                    <TextBlock Text="{Binding Name}" />
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <!-- ============ Footer ============ -->
+    <Border DockPanel.Dock="Bottom" Background="{DynamicResource LnSurface}" BorderBrush="{DynamicResource LnBorder}" BorderThickness="0,1,0,0" Padding="14,0" Height="64">
+      <Grid ColumnDefinitions="Auto,*,Auto" VerticalAlignment="Center">
+        <Button Classes="outlineaccent footer" Command="{Binding OpenOutputCommand}" ToolTip.Tip="{Binding OutputTooltip}">
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <Path Classes="icon" Data="{StaticResource IconFolder}" />
+            <TextBlock Text="{l:T footer.open_output}" />
+          </StackPanel>
+        </Button>
+
+        <Grid Grid.Column="1" ColumnDefinitions="Auto,*" ColumnSpacing="8" Margin="12,0" VerticalAlignment="Center">
+          <Ellipse Classes="dot" Classes.running="{Binding IsRunning}" Classes.missing="{Binding ToolsMissing}" Width="8" Height="8" />
+          <TextBlock Grid.Column="1" IsVisible="{Binding !ToolsMissing}" Classes="muted" FontSize="12" Text="{Binding StatusText}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+          <HyperlinkButton Grid.Column="1" IsVisible="{Binding ToolsMissing}" NavigateUri="https://www.ffmpeg.org"
+                           Padding="0" HorizontalAlignment="Left" ToolTip.Tip="{Binding ToolInstallHint}">
+            <TextBlock Text="{Binding MissingToolMessage}" Foreground="{DynamicResource LnErr}" FontSize="12"
+                       TextDecorations="Underline" TextWrapping="Wrap" />
+          </HyperlinkButton>
+        </Grid>
+
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
+          <Button Classes="primary footer" ToolTip.Tip="{l:T tip.start}" Command="{Binding StartCommand}" IsEnabled="{Binding CanStart}" HotKey="F5">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <Path Classes="icon filled" Data="{StaticResource IconPlay}" Width="13" Height="13" />
+              <TextBlock Text="{Binding StartText}" />
+            </StackPanel>
+          </Button>
+          <Button Classes="footer" ToolTip.Tip="{l:T tip.cancel}" Command="{Binding CancelCommand}" IsEnabled="{Binding IsRunning}">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <Path Classes="icon filled" Data="{StaticResource IconStop}" Width="11" Height="11" />
+              <TextBlock Text="{l:T footer.cancel}" />
+            </StackPanel>
+          </Button>
+          <Rectangle Width="1" Height="28" Fill="{DynamicResource LnBorder}" Margin="4,0" />
+          <Button Classes="footer" MinWidth="100" Command="{Binding ExitCommand}">
+            <TextBlock Text="{l:T footer.close}" />
+          </Button>
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <!-- ============ Hauptbereich ============ -->
+    <Grid Margin="12">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="2*" MinWidth="378" MaxWidth="460" />
+        <ColumnDefinition Width="12" />
+        <ColumnDefinition Width="3*" />
+      </Grid.ColumnDefinitions>
+
+      <!-- ===== LINKS: Quellen ===== -->
+      <Border Classes="card" x:Name="SourcesCard">
+        <Grid RowDefinitions="Auto,Auto,Auto,*,Auto">
+
+          <!-- Kopf -->
+          <Grid Margin="14,12,14,10" ColumnDefinitions="Auto,Auto,Auto,*">
+            <Border Classes="accentbar" Margin="0,0,8,0" />
+            <TextBlock Grid.Column="1" Classes="h2" Text="{l:T sources.title}" />
+            <Border Grid.Column="2" Classes="badge" Margin="8,0,0,0">
+              <TextBlock Text="{Binding CountText}" />
+            </Border>
+          </Grid>
+
+          <!-- Drop-Zone -->
+          <Panel Grid.Row="1" Margin="14,0">
+          <Rectangle x:Name="DropZone" RadiusX="9" RadiusY="9" StrokeThickness="1.5" StrokeDashArray="4,3"
+                     Stroke="{DynamicResource LnBorderStrong}" Fill="{DynamicResource LnAccentSoft}" />
+          <Border Padding="14">
+            <Grid ColumnDefinitions="Auto,*">
+              <Border Width="40" Height="40" CornerRadius="9" Background="{DynamicResource LnSurface2}" BorderBrush="{DynamicResource LnBorder}" BorderThickness="1" Margin="0,0,12,0">
+                <Path Data="{StaticResource IconUpload}" Stroke="{DynamicResource LnAccent}" StrokeThickness="1.8" StrokeLineCap="Round" StrokeJoin="Round" Width="20" Height="20" Stretch="Uniform" />
+              </Border>
+              <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                <TextBlock Classes="heading" FontWeight="SemiBold" Text="{l:T sources.drop_title}" TextWrapping="Wrap" />
+                <TextBlock Classes="muted" Text="{l:T sources.drop_hint}" TextWrapping="Wrap" />
+              </StackPanel>
+            </Grid>
+          </Border>
+          </Panel>
+
+          <!-- Werkzeugleiste -->
+          <Grid Grid.Row="2" Margin="14,10,14,8" ColumnDefinitions="Auto,Auto,*,Auto,Auto">
+            <Button ToolTip.Tip="{l:T tip.files}" Command="{Binding AddFilesCommand}" IsEnabled="{Binding CanEditList}" Margin="0,0,6,0">
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <Path Classes="icon" Data="{StaticResource IconPlus}" Width="13" Height="13" />
+                <TextBlock Text="{l:T sources.add_files}" />
+              </StackPanel>
+            </Button>
+            <Button Grid.Column="1" ToolTip.Tip="{l:T tip.folder}" Command="{Binding AddFolderCommand}" IsEnabled="{Binding CanEditList}">
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <Path Classes="icon" Data="{StaticResource IconPlus}" Width="13" Height="13" />
+                <TextBlock Text="{l:T sources.add_folder}" />
+              </StackPanel>
+            </Button>
+            <Button Grid.Column="3" Classes="ghost danger" ToolTip.Tip="{l:T tip.remove}" Command="{Binding RemoveSelectedCommand}"
+                    CommandParameter="{Binding #FileList.SelectedItems}" IsEnabled="{Binding CanEditList}">
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <Path Classes="icon" Data="{StaticResource IconTrash}" Width="14" Height="14" />
+                <TextBlock Text="{l:T sources.remove}" />
+              </StackPanel>
+            </Button>
+            <Button Grid.Column="4" Classes="ghost" ToolTip.Tip="{l:T tip.remove}" Command="{Binding ClearListCommand}" IsEnabled="{Binding CanEditList}">
+              <TextBlock Text="{l:T sources.clear}" />
+            </Button>
+          </Grid>
+
+          <!-- Dateiliste -->
+          <Border Grid.Row="3" Classes="inset" Margin="14,0">
+            <Panel>
+              <ListBox x:Name="FileList" Classes="files" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding Files}" SelectedItem="{Binding SelectedFile}" SelectionMode="Multiple">
+                <ListBox.ContextMenu>
+                  <ContextMenu>
+                    <MenuItem Header="{l:T sources.show_in_folder}" Command="{Binding RevealFileCommand}" CommandParameter="{x:Null}" />
+                    <MenuItem Header="{l:T sources.remove}" Command="{Binding RemoveSelectedCommand}" CommandParameter="{Binding #FileList.SelectedItems}" />
+                  </ContextMenu>
+                </ListBox.ContextMenu>
+                <ListBox.ItemTemplate>
+                  <DataTemplate x:DataType="vm:FileItemViewModel">
+                    <Grid ColumnDefinitions="22,*,Auto" ToolTip.Tip="{Binding ToolTipText}" Background="Transparent">
+                      <Path Data="{StaticResource IconVideo}" Stroke="{DynamicResource LnMuted}" StrokeThickness="1.6" StrokeLineCap="Round" StrokeJoin="Round" Width="15" Height="15" Stretch="Uniform" VerticalAlignment="Center" />
+                      <StackPanel Grid.Column="1" Margin="6,0,8,0" VerticalAlignment="Center">
+                        <TextBlock Classes="heading" FontSize="12.5" Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+                        <TextBlock Classes="muted" FontSize="11" Text="{Binding Meta}" TextTrimming="CharacterEllipsis" />
+                        <TextBlock Classes="ok" FontSize="11" Text="{Binding ResultText}" IsVisible="{Binding HasResult}" />
+                      </StackPanel>
+                      <Border Grid.Column="2" Classes="pill" Classes.run="{Binding IsRunning}" Classes.done="{Binding IsDone}"
+                              Classes.skip="{Binding IsSkipped}" Classes.fail="{Binding IsFailed}">
+                        <TextBlock Text="{Binding StateText}" />
+                      </Border>
+                    </Grid>
+                  </DataTemplate>
+                </ListBox.ItemTemplate>
+              </ListBox>
+              <TextBlock Classes="muted" Text="{l:T sources.empty}" TextWrapping="Wrap" TextAlignment="Center"
+                         HorizontalAlignment="Center" VerticalAlignment="Center" Margin="24" IsVisible="{Binding HasNoFiles}" IsHitTestVisible="False" />
+            </Panel>
+          </Border>
+
+          <!-- Aktive Einstellungen (Ausgabeordner: Einstellungen > Pfade & Tools) -->
+          <Border Grid.Row="4" BorderBrush="{DynamicResource LnBorder}" BorderThickness="0,1,0,0" Margin="0,10,0,0" Padding="14,12,14,8">
+            <StackPanel Spacing="8">
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <TextBlock Classes="label" Text="{l:T summary.title}" VerticalAlignment="Center" />
+                  <TextBlock Classes="muted" FontSize="11" Text="{Binding ProfileText}" IsVisible="{Binding HasProfile}" VerticalAlignment="Center" />
+                </StackPanel>
+                <Button Grid.Column="1" Classes="link" Content="{l:T summary.change}" Command="{Binding OpenSettingsCommand}" CommandParameter="norm" />
+              </Grid>
+              <StackPanel>
+                <StackPanel.Resources>
+                  <DataTemplate x:Key="SettingChip" x:DataType="vm:ChipViewModel">
+                    <Button Classes="chip" Padding="6,3" Margin="0,0,4,5" Classes.warn="{Binding IsWarning}" Classes.normalize="{Binding IsNormalizeMode}" Content="{Binding Text}" ToolTip.Tip="{Binding Tooltip}"
+                            Command="{Binding Command}"
+                            CommandParameter="{Binding Page}" />
+                  </DataTemplate>
+                  <ItemsPanelTemplate x:Key="ChipRow"><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate>
+                </StackPanel.Resources>
+                <ItemsControl ItemsSource="{Binding AudioChips}" ItemTemplate="{StaticResource SettingChip}" ItemsPanel="{StaticResource ChipRow}" />
+                <ItemsControl ItemsSource="{Binding VideoChips}" ItemTemplate="{StaticResource SettingChip}" ItemsPanel="{StaticResource ChipRow}" />
+                <ItemsControl ItemsSource="{Binding JobChips}" ItemTemplate="{StaticResource SettingChip}" ItemsPanel="{StaticResource ChipRow}" />
+              </StackPanel>
+            </StackPanel>
+          </Border>
+        </Grid>
+      </Border>
+
+      <!-- ===== RECHTS: Fortschritt + Log ===== -->
+      <Grid Grid.Column="2" RowDefinitions="Auto,12,*">
+
+        <Border Classes="card">
+          <StackPanel>
+            <Grid Margin="14,12,14,8" ColumnDefinitions="Auto,Auto,*,Auto">
+              <Border Classes="accentbar" Margin="0,0,8,0" />
+              <TextBlock Grid.Column="1" Classes="h2" Text="{l:T progress.title}" />
+              <Border Grid.Column="3" Classes="chip">
+                <StackPanel Orientation="Horizontal" Spacing="5">
+                  <Ellipse Classes="dot" Classes.running="{Binding IsRunning}" />
+                  <TextBlock Text="{Binding StateText}" />
+                </StackPanel>
+              </Border>
+            </Grid>
+
+            <ProgressBar Classes="ln" Margin="14,2,14,0" Minimum="0" Maximum="100" Value="{Binding OverallPercent}" />
+
+            <UniformGrid Columns="4" Margin="10,12,10,12">
+              <Border Classes="inset" Margin="3,0" Padding="5,8">
+                <StackPanel>
+                  <TextBlock Classes="heading" FontSize="18" FontWeight="SemiBold" Text="{Binding PercentText}" />
+                  <TextBlock Classes="muted" TextWrapping="Wrap" Text="{l:T stat.total}" />
+                </StackPanel>
+              </Border>
+              <Border Classes="inset" Margin="3,0" Padding="5,8">
+                <StackPanel>
+                  <TextBlock Classes="heading" FontSize="18" FontWeight="SemiBold" Text="{Binding FilesText}" />
+                  <TextBlock Classes="muted" TextWrapping="Wrap" Text="{l:T stat.files}" />
+                </StackPanel>
+              </Border>
+              <Border Classes="inset" Margin="3,0" Padding="5,8">
+                <StackPanel>
+                  <TextBlock Classes="heading" FontSize="18" FontWeight="SemiBold" Text="{Binding EtaText}" />
+                  <TextBlock Classes="muted" TextWrapping="Wrap" Text="{l:T stat.eta}" />
+                </StackPanel>
+              </Border>
+              <Border Classes="inset" Margin="3,0" Padding="5,8">
+                <StackPanel>
+                  <TextBlock Classes="heading" FontSize="18" FontWeight="SemiBold" Text="{Binding ElapsedText}" />
+                  <TextBlock Classes="muted" TextWrapping="Wrap" Text="{l:T stat.elapsed}" />
+                </StackPanel>
+              </Border>
+            </UniformGrid>
+
+            <!-- Aktive Jobs -->
+            <ScrollViewer MaxHeight="196" Margin="14,0,14,14" HorizontalScrollBarVisibility="Disabled">
+              <Panel>
+                <ItemsControl ItemsSource="{Binding ActiveJobs}">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <StackPanel Spacing="7" />
+                    </ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ActiveJobViewModel">
+                      <Border Classes="inset" Padding="11,8">
+                        <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto">
+                          <Border Background="{DynamicResource LnVioletSoft}" CornerRadius="5" Padding="6,2" Margin="0,0,10,0" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding NumberText}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource LnAccent2}" />
+                          </Border>
+                          <TextBlock Grid.Column="1" Classes="heading" Text="{Binding Name}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                          <TextBlock Grid.Column="2" Text="{Binding PercentText}" FontWeight="SemiBold" Foreground="{DynamicResource LnAccent}" Margin="10,0,0,0" />
+                          <TextBlock Grid.Row="1" Grid.Column="1" Classes="muted" Text="{Binding Phase}" Margin="0,2,0,6" />
+                          <TextBlock Grid.Row="1" Grid.Column="2" Classes="muted" Text="{Binding EtaText}" HorizontalAlignment="Right" Margin="0,2,0,6" />
+                          <ProgressBar Grid.Row="2" Grid.ColumnSpan="3" Classes="mini" Minimum="0" Maximum="100" Value="{Binding Percent}" />
+                        </Grid>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <Border Classes="inset" Padding="11,10" IsVisible="{Binding HasNoActiveJobs}">
+                  <TextBlock Classes="muted" FontSize="12" Text="{l:T jobs.idle}" />
+                </Border>
+              </Panel>
+            </ScrollViewer>
+          </StackPanel>
+        </Border>
+
+        <!-- Log / Audiospuren -->
+        <Border Grid.Row="2" Classes="card">
+          <Grid RowDefinitions="Auto,*">
+            <Border BorderBrush="{DynamicResource LnBorder}" BorderThickness="0,0,0,1" Padding="10,0">
+              <Grid ColumnDefinitions="Auto,Auto,*,Auto">
+                <RadioButton Classes="tab" GroupName="tabs" IsChecked="{Binding IsLogTab}" Content="{l:T tabs.log}" />
+                <RadioButton Grid.Column="1" Classes="tab" GroupName="tabs" IsChecked="{Binding IsTracksTab}" Content="{l:T tabs.tracks}" />
+                <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="2" IsVisible="{Binding IsLogTab}" VerticalAlignment="Center">
+                  <ToggleButton Classes="ghost" IsChecked="{Binding LogAutoScroll}" ToolTip.Tip="{l:T log.autoscroll}" Padding="8,6">
+                    <Path Classes="icon" Data="{StaticResource IconScroll}" Width="14" Height="14" />
+                  </ToggleButton>
+                  <Button Classes="ghost" Command="{Binding CopyLogCommand}" ToolTip.Tip="{l:T log.copy}" Padding="8,6">
+                    <Path Classes="icon" Data="{StaticResource IconCopy}" Width="14" Height="14" />
+                  </Button>
+                  <Button Classes="ghost" Command="{Binding SaveLogCommand}" ToolTip.Tip="{l:T log.save}" Padding="8,6">
+                    <Path Classes="icon" Data="{StaticResource IconSave}" Width="14" Height="14" />
+                  </Button>
+                  <Button Classes="ghost" Command="{Binding ClearLogCommand}" ToolTip.Tip="{l:T log.clear}" Padding="8,6">
+                    <Path Classes="icon" Data="{StaticResource IconClear}" Width="14" Height="14" />
+                  </Button>
+                </StackPanel>
+              </Grid>
+            </Border>
+
+            <!-- Log -->
+            <Border Grid.Row="1" Classes="inset" Margin="10" IsVisible="{Binding IsLogTab}">
+              <ListBox x:Name="LogList" Classes="log" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding Log}">
+                <ListBox.ItemTemplate>
+                  <DataTemplate x:DataType="vm:LogEntryViewModel">
+                    <Grid ColumnDefinitions="Auto,*">
+                      <TextBlock Classes="mono muted" FontSize="12" Text="{Binding Time}" Margin="0,0,12,0" />
+                      <SelectableTextBlock Grid.Column="1" Classes="mono log" Text="{Binding Text}" TextWrapping="Wrap"
+                                           Classes.muted="{Binding IsMuted}" Classes.accent="{Binding IsAccent}" Classes.success="{Binding IsSuccess}"
+                                           Classes.warning="{Binding IsWarning}" Classes.error="{Binding IsError}" />
+                    </Grid>
+                  </DataTemplate>
+                </ListBox.ItemTemplate>
+              </ListBox>
+            </Border>
+
+            <!-- Audiospuren -->
+            <Grid Grid.Row="1" RowDefinitions="Auto,Auto,*" Margin="14,10,14,10" IsVisible="{Binding IsTracksTab}">
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <TextBlock Classes="muted" FontSize="12" Text="{l:T tracks.for}" />
+                <TextBlock Classes="heading" FontSize="12" Text="{Binding TracksFile}" TextTrimming="CharacterEllipsis" />
+              </StackPanel>
+              <TextBlock Grid.Row="1" Classes="muted" Text="{Binding TracksSummary}" Margin="0,4,0,8" TextWrapping="Wrap" />
+              <Border Grid.Row="2" Classes="inset" IsVisible="{Binding HasTracks}" VerticalAlignment="Top">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                  <Grid ColumnDefinitions="42,74,1.15*,1.45*,*,102" Margin="12,8">
+                    <TextBlock Classes="label" Text="{l:T tracks.col.out}" />
+                    <TextBlock Grid.Column="1" Classes="label" Text="{l:T tracks.col.lang}" />
+                    <TextBlock Grid.Column="2" Classes="label" Text="{l:T tracks.col.title}" />
+                    <TextBlock Grid.Column="3" Classes="label" Text="{l:T tracks.col.format}" />
+                    <TextBlock Grid.Column="4" Classes="label" Text="{l:T tracks.col.flags}" />
+                    <TextBlock Grid.Column="5" Classes="label" Text="{l:T tracks.col.action}" />
+                  </Grid>
+                  <ItemsControl ItemsSource="{Binding Tracks}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="vm:AudioTrackRowViewModel">
+                        <Border BorderBrush="{DynamicResource LnBorder}" BorderThickness="0,1,0,0" Padding="12,7">
+                          <Grid ColumnDefinitions="42,74,1.15*,1.45*,*,102">
+                            <TextBlock Text="{Binding Out}" />
+                            <TextBlock Grid.Column="1" Text="{Binding Language}" />
+                            <TextBlock Grid.Column="2" Classes="heading" Text="{Binding Title}" TextTrimming="CharacterEllipsis" />
+                            <TextBlock Grid.Column="3" Classes="muted" FontSize="12" Text="{Binding Format}" TextTrimming="CharacterEllipsis" />
+                            <TextBlock Grid.Column="4" Classes="muted" FontSize="12" Text="{Binding Flags}" TextTrimming="CharacterEllipsis" />
+                            <Border Grid.Column="5" Classes="pill" Classes.done="{Binding Normalize}" HorizontalAlignment="Left">
+                              <TextBlock Text="{Binding Action}" />
+                            </Border>
+                          </Grid>
+                        </Border>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </StackPanel>
+                </ScrollViewer>
+              </Border>
+            </Grid>
+          </Grid>
+        </Border>
+      </Grid>
+    </Grid>
+  </DockPanel>
+  </ScrollViewer>
+</Window>

@@ -1,0 +1,529 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- ===== Grundlagen ===== -->
+  <Style Selector="Window">
+    <Setter Property="Background" Value="{DynamicResource LnBg}" />
+    <Setter Property="Foreground" Value="{DynamicResource LnText}" />
+    <Setter Property="FontSize" Value="13" />
+  </Style>
+
+  <Style Selector="TextBlock.h2">
+    <Setter Property="FontSize" Value="13.5" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Foreground" Value="{DynamicResource LnHeading}" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="TextBlock.h3">
+    <Setter Property="FontSize" Value="15" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Foreground" Value="{DynamicResource LnHeading}" />
+  </Style>
+  <Style Selector="TextBlock.muted, SelectableTextBlock.muted">
+    <Setter Property="Foreground" Value="{DynamicResource LnMuted}" />
+    <Setter Property="FontSize" Value="11.5" />
+  </Style>
+  <Style Selector="TextBlock.label">
+    <Setter Property="Foreground" Value="{DynamicResource LnMuted}" />
+    <Setter Property="FontSize" Value="11" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style Selector="TextBlock.heading">
+    <Setter Property="Foreground" Value="{DynamicResource LnHeading}" />
+  </Style>
+  <Style Selector="TextBlock.warn, SelectableTextBlock.warn">
+    <Setter Property="Foreground" Value="{DynamicResource LnWarn}" />
+  </Style>
+  <Style Selector="TextBlock.ok, SelectableTextBlock.ok">
+    <Setter Property="Foreground" Value="{DynamicResource LnOk}" />
+  </Style>
+  <Style Selector="TextBlock.err, SelectableTextBlock.err">
+    <Setter Property="Foreground" Value="{DynamicResource LnErr}" />
+  </Style>
+  <Style Selector="TextBlock.mono, SelectableTextBlock.mono">
+    <Setter Property="FontFamily" Value="{StaticResource LnMono}" />
+    <Setter Property="FontSize" Value="12" />
+  </Style>
+
+  <!-- ===== Icons (Farbe je nach Button-Typ) ===== -->
+  <Style Selector="Path.icon">
+    <Setter Property="Width" Value="16" />
+    <Setter Property="Height" Value="16" />
+    <Setter Property="Stretch" Value="Uniform" />
+    <Setter Property="Stroke" Value="{DynamicResource LnText}" />
+    <Setter Property="StrokeThickness" Value="1.8" />
+    <Setter Property="StrokeLineCap" Value="Round" />
+    <Setter Property="StrokeJoin" Value="Round" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Button:pointerover Path.icon">
+    <Setter Property="Stroke" Value="{DynamicResource LnHeading}" />
+  </Style>
+  <Style Selector="Button.ghost Path.icon, ToggleButton.ghost Path.icon">
+    <Setter Property="Stroke" Value="{DynamicResource LnMuted}" />
+  </Style>
+  <Style Selector="Button.ghost:pointerover Path.icon, ToggleButton.ghost:pointerover Path.icon">
+    <Setter Property="Stroke" Value="{DynamicResource LnHeading}" />
+  </Style>
+  <Style Selector="Button.ghost.danger:pointerover Path.icon">
+    <Setter Property="Stroke" Value="{DynamicResource LnErr}" />
+  </Style>
+  <Style Selector="ToggleButton.ghost:checked Path.icon">
+    <Setter Property="Stroke" Value="{DynamicResource LnAccent}" />
+  </Style>
+  <Style Selector="Button.outlineaccent Path.icon">
+    <Setter Property="Stroke" Value="{DynamicResource LnAccent}" />
+  </Style>
+  <Style Selector="Button.primary Path.icon">
+    <Setter Property="Stroke" Value="White" />
+  </Style>
+  <Style Selector="Path.icon.filled">
+    <Setter Property="Fill" Value="{Binding $self.Stroke}" />
+    <Setter Property="StrokeThickness" Value="0" />
+  </Style>
+  <Style Selector="Button:disabled Path.icon">
+    <Setter Property="Opacity" Value="0.45" />
+  </Style>
+
+  <!-- ===== Karten ===== -->
+  <Style Selector="Border.card">
+    <Setter Property="Background" Value="{DynamicResource LnSurface}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource LnBorder}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="10" />
+  </Style>
+  <Style Selector="Border.inset">
+    <Setter Property="Background" Value="{DynamicResource LnSurface2}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource LnBorder}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="8" />
+  </Style>
+  <Style Selector="Border.accentbar">
+    <Setter Property="Width" Value="3" />
+    <Setter Property="Height" Value="15" />
+    <Setter Property="CornerRadius" Value="2" />
+    <Setter Property="Background" Value="{StaticResource LnGradientVertical}" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Border.badge">
+    <Setter Property="Background" Value="{DynamicResource LnAccentSoft}" />
+    <Setter Property="CornerRadius" Value="99" />
+    <Setter Property="Padding" Value="8,1" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Border.badge > TextBlock">
+    <Setter Property="Foreground" Value="{DynamicResource LnAccent}" />
+    <Setter Property="FontSize" Value="11" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style Selector="Border.chip">
+    <Setter Property="Background" Value="{DynamicResource LnSurface2}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource LnBorder}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="99" />
+    <Setter Property="Padding" Value="8,2" />
+  </Style>
+  <Style Selector="Border.chip > StackPanel > TextBlock">
+    <Setter Property="FontSize" Value="11.5" />
+  </Style>
+  <Style Selector="Ellipse.dot">
+    <Setter Property="Width" Value="7" />
+    <Setter Property="Height" Value="7" />
+    <Setter Property="Fill" Value="{DynamicResource LnOk}" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Ellipse.dot.off">
+    <Setter Property="Fill" Value="{DynamicResource LnMuted}" />
+  </Style>
+  <Style Selector="Ellipse.dot.running">
+    <Setter Property="Fill" Value="{DynamicResource LnAccent}" />
+  </Style>
+
+  <!-- Status-Pillen der Dateiliste -->
+  <Style Selector="Border.pill">
+    <Setter Property="CornerRadius" Value="99" />
+    <Setter Property="Padding" Value="8,2" />
+    <Setter Property="Background" Value="{DynamicResource LnSurface3}" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Border.pill > TextBlock">
+    <Setter Property="FontSize" Value="10.5" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Foreground" Value="{DynamicResource LnMuted}" />
+  </Style>
+  <Style Selector="Border.pill.run">
+    <Setter Property="Background" Value="{DynamicResource LnAccentSoft}" />
+  </Style>
+  <Style Selector="Border.pill.run > TextBlock">
+    <Setter Property="Foreground" Value="{DynamicResource LnAccent}" />
+  </Style>
+  <Style Selector="Border.pill.done">
+    <Setter Property="Background" Value="{DynamicResource LnOkSoft}" />
+  </Style>
+  <Style Selector="Border.pill.done > TextBlock">
+    <Setter Property="Foreground" Value="{DynamicResource LnOk}" />
+  </Style>
+  <Style Selector="Border.pill.skip">
+    <Setter Property="Background" Value="{DynamicResource LnWarnSoft}" />
+  </Style>
+  <Style Selector="Border.pill.skip > TextBlock">
+    <Setter Property="Foreground" Value="{DynamicResource LnWarn}" />
+  </Style>
+  <Style Selector="Border.pill.fail">
+    <Setter Property="Background" Value="{DynamicResource LnErrSoft}" />
+  </Style>
+  <Style Selector="Border.pill.fail > TextBlock">
+    <Setter Property="Foreground" Value="{DynamicResource LnErr}" />
+  </Style>
+
+  <!-- ===== Buttons ===== -->
+  <Style Selector="Button">
+    <Setter Property="CornerRadius" Value="7" />
+    <Setter Property="Padding" Value="11,6" />
+    <Setter Property="FontSize" Value="12.5" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+  </Style>
+
+  <Style Selector="Button.ghost">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="Foreground" Value="{DynamicResource LnMuted}" />
+  </Style>
+  <Style Selector="Button.ghost:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource LnSurface3}" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="Foreground" Value="{DynamicResource LnHeading}" />
+  </Style>
+  <Style Selector="Button.ghost:disabled /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+  </Style>
+  <Style Selector="ToggleButton.ghost">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="CornerRadius" Value="7" />
+  </Style>
+  <Style Selector="ToggleButton.ghost:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource LnSurface3}" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+  </Style>
+  <Style Selector="ToggleButton.ghost:checked /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource LnAccentSoft}" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+  </Style>
+  <Style Selector="ToggleButton.ghost:checked:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource LnAccentSoft}" />
+  </Style>
+  <Style Selector="Button.ghost.danger:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Foreground" Value="{DynamicResource LnErr}" />
+  </Style>
+
+  <Style Selector="Button.primary">
+    <Setter Property="Background" Value="{StaticResource LnGradient}" />
+    <Setter Property="Foreground" Value="White" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style Selector="Button.primary:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{StaticResource LnGradientHover}" />
+    <Setter Property="Foreground" Value="White" />
+  </Style>
+  <Style Selector="Button.primary:pressed /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{StaticResource LnGradient}" />
+    <Setter Property="Foreground" Value="White" />
+  </Style>
+  <Style Selector="Button.primary:disabled /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{StaticResource LnGradient}" />
+    <Setter Property="Foreground" Value="White" />
+    <Setter Property="Opacity" Value="0.4" />
+  </Style>
+
+  <Style Selector="Button.outlineaccent">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="{DynamicResource LnAccent}" />
+    <Setter Property="Foreground" Value="{DynamicResource LnAccent}" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style Selector="Button.outlineaccent:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource LnAccentSoft}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource LnAccent}" />
+    <Setter Property="Foreground" Value="{DynamicResource LnAccent}" />
+  </Style>
+
+  <Style Selector="Button.footer">
+    <Setter Property="MinWidth" Value="120" />
+    <Setter Property="Padding" Value="16,9" />
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+  </Style>
+
+  <Style Selector="Button.link">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="Foreground" Value="{DynamicResource LnAccent}" />
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="Cursor" Value="Hand" />
+  </Style>
+  <Style Selector="Button.link:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Foreground" Value="{DynamicResource LnAccent2}" />
+  </Style>
+
+  <!-- Chips "Aktive Einstellungen" -->
+  <Style Selector="Button.chip">
+    <Setter Property="Background" Value="{DynamicResource LnSurface2}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource LnBorder}" />
+    <Setter Property="CornerRadius" Value="99" />
+    <Setter Property="Padding" Value="9,3" />
+    <Setter Property="FontSize" Value="11.5" />
+    <Setter Property="Margin" Value="0,0,6,6" />
+    <Setter Property="Cursor" Value="Hand" />
+  </Style>
+  <Style Selector="Button.chip:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="BorderBrush" Value="{DynamicResource LnAccent}" />
+    <Setter Property="Background" Value="{DynamicResource LnSurface2}" />
+  </Style>
+  <Style Selector="Button.chip.normalize">
+    <Setter Property="BorderBrush" Value="{DynamicResource LnOk}" />
+    <Setter Property="Foreground" Value="{DynamicResource LnOk}" />
+  </Style>
+  <Style Selector="Button.chip.warn">
+    <Setter Property="BorderBrush" Value="{DynamicResource LnWarn}" />
+    <Setter Property="Foreground" Value="{DynamicResource LnWarn}" />
+  </Style>
+
+  <!-- ===== Tabs (RadioButton) ===== -->
+  <Style Selector="RadioButton.tab">
+    <Setter Property="Foreground" Value="{DynamicResource LnMuted}" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="FontSize" Value="12.5" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Name="bd" Background="Transparent" Padding="12,10,12,8" BorderThickness="0,0,0,2" BorderBrush="Transparent">
+          <ContentPresenter Content="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}" />
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="RadioButton.tab:pointerover">
+    <Setter Property="Foreground" Value="{DynamicResource LnHeading}" />
+  </Style>
+  <Style Selector="RadioButton.tab:checked">
+    <Setter Property="Foreground" Value="{DynamicResource LnHeading}" />
+  </Style>
+  <Style Selector="RadioButton.tab:checked /template/ Border#bd">
+    <Setter Property="BorderBrush" Value="{DynamicResource LnAccent}" />
+  </Style>
+
+  <!-- Segmentierte Auswahl (RadioButton) -->
+  <Style Selector="RadioButton.seg">
+    <Setter Property="Foreground" Value="{DynamicResource LnMuted}" />
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Name="bd" Background="Transparent" Padding="12,5" CornerRadius="5" BorderThickness="0,0,0,2" BorderBrush="Transparent">
+          <ContentPresenter Content="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}" HorizontalAlignment="Center" />
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="RadioButton.seg:checked">
+    <Setter Property="Foreground" Value="{DynamicResource LnHeading}" />
+  </Style>
+  <Style Selector="RadioButton.seg:checked /template/ Border#bd">
+    <Setter Property="Background" Value="{DynamicResource LnSurface3}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource LnAccent}" />
+  </Style>
+  <Style Selector="Border.seggroup">
+    <Setter Property="Background" Value="{DynamicResource LnSurface2}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource LnBorder}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="7" />
+    <Setter Property="Padding" Value="2" />
+    <Setter Property="HorizontalAlignment" Value="Left" />
+  </Style>
+
+  <!-- Navigationsliste im Einstellungsdialog -->
+  <Style Selector="ListBox.nav">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+  </Style>
+  <Style Selector="ListBox.nav ListBoxItem">
+    <Setter Property="Padding" Value="10,8" />
+    <Setter Property="CornerRadius" Value="6" />
+    <Setter Property="Margin" Value="0,1" />
+    <Setter Property="Foreground" Value="{DynamicResource LnMuted}" />
+  </Style>
+  <Style Selector="ListBox.nav ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource LnSurface3}" />
+    <Setter Property="Foreground" Value="{DynamicResource LnHeading}" />
+  </Style>
+  <Style Selector="ListBox.nav ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource LnAccentSoft}" />
+    <Setter Property="Foreground" Value="{DynamicResource LnHeading}" />
+  </Style>
+  <Style Selector="ListBox.nav ListBoxItem:selected:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource LnAccentSoft}" />
+  </Style>
+
+  <!-- Dateiliste -->
+  <Style Selector="ListBox.files">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="0" />
+  </Style>
+  <Style Selector="ListBox.files ListBoxItem">
+    <Setter Property="Padding" Value="10,7" />
+    <Setter Property="BorderBrush" Value="{DynamicResource LnBorder}" />
+    <Setter Property="BorderThickness" Value="0,0,0,1" />
+  </Style>
+  <Style Selector="ListBox.files ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource LnSurface3}" />
+  </Style>
+  <Style Selector="ListBox.files ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource LnAccentSoft}" />
+  </Style>
+  <Style Selector="ListBox.files ListBoxItem:selected:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource LnAccentSoft}" />
+  </Style>
+
+  <!-- Log -->
+  <Style Selector="ListBox.log">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="0,4" />
+  </Style>
+  <Style Selector="ListBox.log ListBoxItem">
+    <Setter Property="Padding" Value="12,1" />
+    <Setter Property="MinHeight" Value="0" />
+  </Style>
+  <Style Selector="ListBox.log ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource LnSurface3}" />
+  </Style>
+  <Style Selector="ListBox.log ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource LnAccentSoft}" />
+  </Style>
+  <Style Selector="SelectableTextBlock.log">
+    <Setter Property="Foreground" Value="{DynamicResource LnText}" />
+  </Style>
+  <Style Selector="SelectableTextBlock.log.muted">
+    <Setter Property="Foreground" Value="{DynamicResource LnMuted}" />
+    <Setter Property="FontSize" Value="12" />
+  </Style>
+  <Style Selector="SelectableTextBlock.log.accent">
+    <Setter Property="Foreground" Value="{DynamicResource LnAccent}" />
+  </Style>
+  <Style Selector="SelectableTextBlock.log.success">
+    <Setter Property="Foreground" Value="{DynamicResource LnOk}" />
+  </Style>
+  <Style Selector="SelectableTextBlock.log.warning">
+    <Setter Property="Foreground" Value="{DynamicResource LnWarn}" />
+  </Style>
+  <Style Selector="SelectableTextBlock.log.error">
+    <Setter Property="Foreground" Value="{DynamicResource LnErr}" />
+  </Style>
+
+  <!-- ===== Fortschrittsbalken mit Verlauf ===== -->
+  <Style Selector="ProgressBar.ln">
+    <Setter Property="Height" Value="10" />
+    <Setter Property="MinHeight" Value="10" />
+    <Setter Property="CornerRadius" Value="99" />
+    <Setter Property="Background" Value="{DynamicResource LnSurface2}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource LnBorder}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="Foreground" Value="{StaticResource LnGradient}" />
+  </Style>
+  <Style Selector="ProgressBar.ln /template/ Border#PART_Indicator">
+    <Setter Property="CornerRadius" Value="99" />
+    <Setter Property="Background" Value="{StaticResource LnGradient}" />
+  </Style>
+  <Style Selector="ProgressBar.mini">
+    <Setter Property="Height" Value="4" />
+    <Setter Property="MinHeight" Value="4" />
+    <Setter Property="CornerRadius" Value="99" />
+    <Setter Property="Background" Value="{DynamicResource LnSurface3}" />
+    <Setter Property="Foreground" Value="{DynamicResource LnAccent}" />
+  </Style>
+
+  <!-- Eingaben -->
+  <Style Selector="TextBox">
+    <Setter Property="CornerRadius" Value="7" />
+    <Setter Property="MinHeight" Value="30" />
+    <Setter Property="Padding" Value="9,5" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+  </Style>
+  <Style Selector="TextBox.mono">
+    <Setter Property="FontFamily" Value="{StaticResource LnMono}" />
+    <Setter Property="FontSize" Value="12" />
+  </Style>
+  <Style Selector="ComboBox">
+    <Setter Property="CornerRadius" Value="7" />
+    <Setter Property="MinHeight" Value="30" />
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+  </Style>
+  <Style Selector="NumericUpDown">
+    <Setter Property="CornerRadius" Value="7" />
+    <Setter Property="MinHeight" Value="30" />
+  </Style>
+  <Style Selector="CheckBox">
+    <Setter Property="Foreground" Value="{DynamicResource LnText}" />
+  </Style>
+
+  <!-- Menueleiste -->
+  <Style Selector="NativeMenuBar Menu">
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+  <Style Selector="NativeMenuBar Menu > MenuItem">
+    <Setter Property="Padding" Value="12,5" />
+    <Setter Property="CornerRadius" Value="5" />
+    <Setter Property="Foreground" Value="{DynamicResource LnText}" />
+  </Style>
+
+  <!-- Hinweis-Box -->
+  <Style Selector="Border.warnbox">
+    <Setter Property="Background" Value="{DynamicResource LnWarnSoft}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource LnWarn}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="Padding" Value="10,8" />
+  </Style>
+  <Style Selector="Border.warnbox TextBlock">
+    <Setter Property="Foreground" Value="{DynamicResource LnWarn}" />
+    <Setter Property="TextWrapping" Value="Wrap" />
+  </Style>
+
+  <!-- Benachrichtigungen -->
+  <Style Selector="NotificationCard">
+    <Setter Property="Background" Value="{DynamicResource LnSurface2}" />
+    <Setter Property="Foreground" Value="{DynamicResource LnText}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource LnBorderStrong}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="10" />
+  </Style>
+  <Style Selector="NotificationCard:success /template/ Panel#PART_HeaderBar">
+    <Setter Property="Background" Value="{DynamicResource LnOk}" />
+  </Style>
+  <Style Selector="NotificationCard:information /template/ Panel#PART_HeaderBar">
+    <Setter Property="Background" Value="{DynamicResource LnAccent}" />
+  </Style>
+  <Style Selector="NotificationCard:warning /template/ Panel#PART_HeaderBar">
+    <Setter Property="Background" Value="{DynamicResource LnWarn}" />
+  </Style>
+
+  <Style Selector="Border.newbadge">
+    <Setter Property="Background" Value="{DynamicResource LnAccent2}" />
+    <Setter Property="CornerRadius" Value="4" />
+    <Setter Property="Padding" Value="5,1" />
+    <Setter Property="Margin" Value="6,0,0,0" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Border.newbadge > TextBlock">
+    <Setter Property="Foreground" Value="White" />
+    <Setter Property="FontSize" Value="9.5" />
+    <Setter Property="FontWeight" Value="Bold" />
+  </Style>
+</Styles>

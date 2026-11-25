@@ -1,0 +1,51 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>LoudnormPro.App</RootNamespace>
+    <AssemblyName>LoudnormPRO</AssemblyName>
+    <ApplicationIcon>Assets\loudnorm.ico</ApplicationIcon>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- Windows portable ships native libraries alongside the EXE to avoid extracting into TEMP. -->
+    <IncludeNativeLibrariesForSelfExtract Condition="'$(WindowsInstallerBuild)' == 'true'">true</IncludeNativeLibrariesForSelfExtract>
+    <!-- macOS -->
+    <CFBundleName>Loudnorm PRO</CFBundleName>
+    <CFBundleIdentifier>com.pfdhub.loudnormpro</CFBundleIdentifier>
+  </PropertyGroup>
+
+  <!-- Avalonia schreibt das kompilierte XAML in die Zwischenassembly. Beide
+       Windows-Pakete brauchen deshalb eigene Build- und Bundle-Artefakte. -->
+  <PropertyGroup Condition="'$(RuntimeIdentifier)' == 'win-x64' And '$(PublishSingleFile)' == 'true'">
+    <WindowsPackageKind>portable</WindowsPackageKind>
+    <WindowsPackageKind Condition="'$(WindowsInstallerBuild)' == 'true'">installer</WindowsPackageKind>
+    <IntermediateOutputPath>obj\$(WindowsPackageKind)\$(Configuration)\</IntermediateOutputPath>
+    <OutputPath>bin\$(WindowsPackageKind)\$(Configuration)\</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Sprachen: in die EXE eingebettet (immer verfuegbar) und zusaetzlich als editierbare Dateien daneben -->
+    <EmbeddedResource Include="Languages\*.json" LogicalName="Languages.%(Filename)%(Extension)" />
+    <None Include="Languages\*.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="Always" ExcludeFromSingleFile="true" />
+    <EmbeddedResource Include="..\..\CHANGELOG.md" Link="CHANGELOG.md" LogicalName="CHANGELOG.md" />
+    <!-- Debug-Builds und der portable Windows-Publish speichern neben der EXE. -->
+    <None Include="portable.mode" CopyToOutputDirectory="PreserveNewest" Condition="'$(Configuration)' == 'Debug'" />
+    <None Update="portable.mode" CopyToPublishDirectory="Always" ExcludeFromSingleFile="true"
+          Condition="'$(RuntimeIdentifier)' == 'win-x64' And '$(WindowsInstallerBuild)' != 'true'" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
+    <PackageReference Include="Avalonia.Desktop" Version="$(AvaloniaVersion)" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LoudnormPro.Core\LoudnormPro.Core.csproj" />
+  </ItemGroup>
+</Project>

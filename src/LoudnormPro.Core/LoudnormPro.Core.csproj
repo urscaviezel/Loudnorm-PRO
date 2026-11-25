@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>LoudnormPro.Core</RootNamespace>
+    <AssemblyName>LoudnormPro.Core</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="LoudnormPro.Core.Tests" />
+  </ItemGroup>
+</Project>

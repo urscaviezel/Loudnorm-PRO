@@ -1,0 +1,313 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:LoudnormPro.App.ViewModels"
+        xmlns:l="using:LoudnormPro.App.Localization"
+        x:Class="LoudnormPro.App.Views.SettingsWindow"
+        x:DataType="vm:SettingsViewModel"
+        Title="{l:T settings.title}"
+        Width="820" Height="620" MinWidth="720" MinHeight="520"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False"
+        Background="{DynamicResource LnSurface}">
+
+  <Window.Styles>
+    <Style Selector="Grid.fld">
+      <Setter Property="Margin" Value="0,0,0,14" />
+    </Style>
+    <Style Selector="Grid.fld > TextBlock.flabel">
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="Foreground" Value="{DynamicResource LnText}" />
+    </Style>
+    <Style Selector="TextBlock.hint">
+      <Setter Property="Foreground" Value="{DynamicResource LnMuted}" />
+      <Setter Property="FontSize" Value="11.5" />
+      <Setter Property="TextWrapping" Value="Wrap" />
+      <Setter Property="Margin" Value="0,4,0,0" />
+    </Style>
+    <Style Selector="TextBlock.pagetitle">
+      <Setter Property="FontSize" Value="15" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Foreground" Value="{DynamicResource LnHeading}" />
+    </Style>
+    <Style Selector="TextBlock.pagedesc">
+      <Setter Property="Foreground" Value="{DynamicResource LnMuted}" />
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="TextWrapping" Value="Wrap" />
+      <Setter Property="Margin" Value="0,2,0,16" />
+    </Style>
+  </Window.Styles>
+
+  <DockPanel>
+    <!-- Kopf -->
+    <Border DockPanel.Dock="Top" BorderBrush="{DynamicResource LnBorder}" BorderThickness="0,0,0,1" Padding="16,14">
+      <StackPanel Orientation="Horizontal" Spacing="10">
+        <Border Width="24" Height="24" CornerRadius="6" Background="{StaticResource LnGradient}">
+          <Path Data="{StaticResource IconWave}" Stroke="White" StrokeThickness="2.4" StrokeLineCap="Round" Width="14" Height="14" Stretch="Uniform" />
+        </Border>
+        <TextBlock Classes="h3" Text="{l:T settings.title}" VerticalAlignment="Center" />
+      </StackPanel>
+    </Border>
+
+    <!-- Fuss -->
+    <Border DockPanel.Dock="Bottom" Background="{DynamicResource LnBg}" BorderBrush="{DynamicResource LnBorder}" BorderThickness="0,1,0,0" Padding="16,12">
+      <Grid ColumnDefinitions="Auto,*,Auto">
+        <Button Classes="ghost" Content="{l:T settings.restore_defaults}" Command="{Binding RestoreDefaultsCommand}" />
+        <TextBlock Grid.Column="1" Classes="muted" Text="{Binding InfoMessage}" VerticalAlignment="Center" Margin="12,0" />
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
+          <Button Content="{l:T common.cancel}" MinWidth="90" HorizontalContentAlignment="Center" IsCancel="True" Click="OnCancel" />
+          <Button Classes="primary" Content="{l:T common.ok}" MinWidth="90" HorizontalContentAlignment="Center" IsDefault="True" IsEnabled="{Binding CanApply}" Click="OnOk" />
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <Grid ColumnDefinitions="200,*">
+      <!-- Navigation -->
+      <Border Background="{DynamicResource LnBg}" BorderBrush="{DynamicResource LnBorder}" BorderThickness="0,0,1,0" Padding="8,10">
+        <ListBox Classes="nav" ItemsSource="{Binding Pages}" SelectedItem="{Binding SelectedPage}">
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="vm:SettingsPage">
+              <StackPanel Orientation="Horizontal" Spacing="9">
+                <Path Data="{Binding IconKey, Converter={x:Static vm:IconConverter.Instance}}" Stroke="{DynamicResource LnAccent}" StrokeThickness="1.7"
+                      StrokeLineCap="Round" StrokeJoin="Round" Width="15" Height="15" Stretch="Uniform" />
+                <TextBlock Text="{Binding Title}" VerticalAlignment="Center" />
+              </StackPanel>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </Border>
+
+      <ScrollViewer Grid.Column="1" HorizontalScrollBarVisibility="Disabled">
+        <Panel Margin="22,18">
+
+          <!-- ========== Normalisierung ========== -->
+          <StackPanel IsVisible="{Binding IsNorm}">
+            <TextBlock Classes="pagetitle" Text="{l:T settings.norm.title}" />
+            <TextBlock Classes="pagedesc" Text="{l:T settings.norm.desc}" />
+
+            <Grid Classes="fld" ColumnDefinitions="180,*">
+              <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="{l:T settings.norm.profile}" VerticalAlignment="Center" />
+                <Border Classes="newbadge"><TextBlock Text="{l:T common.new}" /></Border>
+              </StackPanel>
+              <ComboBox Grid.Column="1" ItemsSource="{Binding ProfileOptions}" ToolTip.Tip="{l:T settings.norm.desc}" SelectedItem="{Binding SelectedProfile}" />
+            </Grid>
+
+            <Grid ColumnDefinitions="*,12,*,12,*" Margin="0,0,0,16">
+              <StackPanel>
+                <TextBlock Classes="muted" Text="{l:T settings.norm.i}" Margin="0,0,0,4" />
+                <NumericUpDown ToolTip.Tip="{l:T tip.i}" Value="{Binding TargetI}" Minimum="{Binding MinI}" Maximum="{Binding MaxI}" Increment="0.5" FormatString="0.0" />
+              </StackPanel>
+              <StackPanel Grid.Column="2">
+                <TextBlock Classes="muted" Text="{l:T settings.norm.tp}" Margin="0,0,0,4" />
+                <NumericUpDown ToolTip.Tip="{l:T tip.tp}" Value="{Binding TargetTp}" Minimum="{Binding MinTp}" Maximum="{Binding MaxTp}" Increment="0.1" FormatString="0.0" />
+              </StackPanel>
+              <StackPanel Grid.Column="4">
+                <TextBlock Classes="muted" Text="{l:T settings.norm.lra}" Margin="0,0,0,4" />
+                <NumericUpDown ToolTip.Tip="{l:T tip.lra}" Value="{Binding TargetLra}" Minimum="{Binding MinLra}" Maximum="{Binding MaxLra}" Increment="1" FormatString="0" />
+              </StackPanel>
+            </Grid>
+
+            <Grid Classes="fld" ColumnDefinitions="180,*" RowDefinitions="Auto,Auto">
+              <TextBlock Classes="flabel" Text="{l:T settings.norm.track_mode}" />
+              <ComboBox Grid.Column="1" ItemsSource="{Binding TrackModeOptions}" ToolTip.Tip="{Binding TrackModeHint}" SelectedItem="{Binding SelectedTrackMode}" />
+              <TextBlock Grid.Row="1" Grid.Column="1" Classes="hint" Text="{Binding TrackModeHint}" />
+            </Grid>
+
+            <Grid Classes="fld" ColumnDefinitions="180,*">
+              <TextBlock Classes="flabel" Text="{l:T settings.norm.preferred_lang}" />
+              <ComboBox Grid.Column="1" ItemsSource="{Binding PreferredLanguageOptions}" ToolTip.Tip="{l:T tip.lang}" SelectedItem="{Binding SelectedPreferredLanguage}" />
+            </Grid>
+
+            <CheckBox ToolTip.Tip="{l:T settings.norm.prefer_first.hint}" IsChecked="{Binding PreferFirst}" IsEnabled="{Binding PreferFirstEnabled}" Margin="0,0,0,2">
+              <StackPanel>
+                <TextBlock Text="{l:T settings.norm.prefer_first}" TextWrapping="Wrap" />
+                <TextBlock Classes="hint" Text="{l:T settings.norm.prefer_first.hint}" />
+              </StackPanel>
+            </CheckBox>
+
+            <CheckBox ToolTip.Tip="{l:T settings.norm.analyze_only.hint}" IsChecked="{Binding AnalyzeOnly}" Margin="0,10,0,0">
+              <StackPanel>
+                <StackPanel Orientation="Horizontal">
+                  <TextBlock Text="{l:T settings.norm.analyze_only}" TextWrapping="Wrap" />
+                  <Border Classes="newbadge"><TextBlock Text="{l:T common.new}" /></Border>
+                </StackPanel>
+                <TextBlock Classes="hint" Text="{l:T settings.norm.analyze_only.hint}" />
+              </StackPanel>
+            </CheckBox>
+          </StackPanel>
+
+          <!-- ========== Audio ========== -->
+          <StackPanel IsVisible="{Binding IsAudio}">
+            <TextBlock Classes="pagetitle" Text="{l:T settings.audio.title}" />
+            <TextBlock Classes="pagedesc" Text="{l:T settings.audio.desc}" />
+            <Grid Classes="fld" ColumnDefinitions="180,*">
+              <TextBlock Classes="flabel" Text="{l:T settings.audio.codec}" />
+              <ComboBox Grid.Column="1" ItemsSource="{Binding AudioCodecs}" ToolTip.Tip="{l:T tip.audio}" SelectedItem="{Binding SelectedCodec}" />
+            </Grid>
+            <Grid IsVisible="{Binding ShowAudioBitrate}" Classes="fld" ColumnDefinitions="180,*" RowDefinitions="Auto,Auto">
+              <TextBlock Classes="flabel" Text="{l:T settings.audio.bitrate}" />
+              <ComboBox Grid.Column="1" ItemsSource="{Binding BitrateOptions}" ToolTip.Tip="{l:T tip.rate}" SelectedItem="{Binding SelectedBitrate}" />
+
+            </Grid>
+            <TextBlock Classes="hint" Text="{l:T audio.format_hint}" />
+            <TextBlock Classes="hint" Text="{l:T error.codec_container}" IsVisible="{Binding IncompatibleFormat}" />
+          </StackPanel>
+
+          <!-- ========== Video ========== -->
+          <StackPanel IsVisible="{Binding IsVideo}">
+            <TextBlock Classes="pagetitle" Text="{l:T settings.video.title}" />
+            <TextBlock Classes="pagedesc" Text="{l:T settings.video.desc}" />
+            <Grid Classes="fld" ColumnDefinitions="180,*">
+              <TextBlock Classes="flabel" Text="{l:T settings.video.detected}" />
+              <ItemsControl Grid.Column="1" ItemsSource="{Binding EncoderChips}">
+                <ItemsControl.ItemsPanel>
+                  <ItemsPanelTemplate>
+                    <WrapPanel />
+                  </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:EncoderChipViewModel">
+                    <Border Classes="chip" Margin="0,0,6,6" ToolTip.Tip="{Binding ToolTip}" Opacity="{Binding Available, Converter={x:Static vm:BoolOpacityConverter.Instance}}">
+                      <StackPanel Orientation="Horizontal" Spacing="5">
+                        <Ellipse Classes="dot" Classes.off="{Binding !Available}" />
+                        <TextBlock Text="{Binding Name}" />
+                      </StackPanel>
+                    </Border>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </Grid>
+            <Grid Classes="fld" ColumnDefinitions="180,*" RowDefinitions="Auto,Auto">
+              <TextBlock Classes="flabel" Text="{l:T settings.video.mode}" />
+              <ComboBox Grid.Column="1" ItemsSource="{Binding VideoModeOptions}" ToolTip.Tip="{l:T tip.video}" SelectedItem="{Binding SelectedVideoMode}" />
+              <TextBlock Grid.Row="1" Grid.Column="1" Classes="hint" Text="{l:T settings.video.copy.hint}" IsVisible="{Binding IsCopyMode}" />
+            </Grid>
+            <Grid Classes="fld" ColumnDefinitions="180,*" RowDefinitions="Auto,Auto" IsVisible="{Binding ShowPreset}">
+              <TextBlock Classes="flabel" Text="{l:T settings.video.preset}" />
+              <ComboBox Grid.Column="1" ItemsSource="{Binding PresetOptions}" ToolTip.Tip="{l:T tip.preset}" SelectedItem="{Binding SelectedPreset}" />
+            </Grid>
+            <Grid Classes="fld" ColumnDefinitions="180,*" RowDefinitions="Auto,Auto" IsVisible="{Binding ShowAmfPreset}">
+              <TextBlock Classes="flabel" Text="{l:T settings.video.preset}" />
+              <ComboBox Grid.Column="1" ItemsSource="{Binding AmfPresets}" ToolTip.Tip="{l:T tip.preset}" SelectedItem="{Binding SelectedAmfPreset}" />
+            </Grid>
+            <Grid Classes="fld" ColumnDefinitions="180,*" RowDefinitions="Auto,Auto" IsVisible="{Binding ShowRateMode}">
+              <TextBlock Classes="flabel" Text="{l:T settings.video.quality}" />
+              <ComboBox Grid.Column="1" ItemsSource="{Binding RateModes}" ToolTip.Tip="{l:T tip.vRate}" SelectedItem="{Binding SelectedRateMode}" />
+            </Grid>
+            <Grid Classes="fld" ColumnDefinitions="180,*" RowDefinitions="Auto,Auto" IsVisible="{Binding ShowQp}">
+              <TextBlock Classes="flabel" Text="QP" />
+              <ComboBox Grid.Column="1" ItemsSource="{Binding QpOptions}" ToolTip.Tip="{l:T video.qp.hint}" SelectedItem="{Binding SelectedQp}" />
+              <TextBlock Grid.Row="1" Grid.Column="1" Classes="hint" Text="{l:T video.qp.hint}" />
+            </Grid>
+            <Grid Classes="fld" ColumnDefinitions="180,*" RowDefinitions="Auto,Auto" IsVisible="{Binding ShowBitrate}">
+              <TextBlock Classes="flabel" Text="{l:T video.bitrate}" />
+              <ComboBox Grid.Column="1" ItemsSource="{Binding VideoRates}" ToolTip.Tip="{l:T tip.vRate}" SelectedItem="{Binding SelectedVideoRate}" />
+              <TextBlock Grid.Row="1" Grid.Column="1" Classes="hint" IsVisible="{Binding ShowCustom}" Text="{l:T video.rate.custom}" />
+            </Grid>
+            <Grid Classes="fld" ColumnDefinitions="180,*" RowDefinitions="Auto,Auto" IsVisible="{Binding ShowCustom}">
+              <TextBlock Classes="flabel" Text="Mbit/s" />
+              <NumericUpDown Grid.Column="1" ToolTip.Tip="{l:T video.rate.custom}" Value="{Binding CustomMbps}" Minimum="0.001" Maximum="1000" Increment="1" FormatString="0.###" />
+            </Grid>
+            <Grid Classes="fld" ColumnDefinitions="180,*" RowDefinitions="Auto,Auto">
+              <TextBlock Classes="flabel" Text="{l:T video.format}" />
+              <ComboBox Grid.Column="1" ItemsSource="{Binding Formats}" ToolTip.Tip="{l:T tip.format}" SelectedItem="{Binding SelectedFormat}" />
+              <TextBlock Grid.Row="1" Grid.Column="1" Classes="hint" Text="{l:T video.format.hint}" />
+            </Grid>
+            <TextBlock Classes="hint" Text="{l:T error.codec_container}" IsVisible="{Binding IncompatibleFormat}" />
+            <Grid Classes="fld" ColumnDefinitions="180,*" RowDefinitions="Auto,Auto">
+              <TextBlock Classes="flabel" Text="{l:T tag.label}" />
+              <ComboBox Grid.Column="1" ItemsSource="{Binding TagModes}" ToolTip.Tip="{l:T tag.hint}" SelectedItem="{Binding SelectedTagMode}" />
+              <TextBlock Grid.Row="1" Grid.Column="1" Classes="hint" Text="{l:T tag.hint}" />
+            </Grid>
+            <Grid Classes="fld" ColumnDefinitions="180,*" RowDefinitions="Auto,Auto" IsVisible="{Binding ShowCustomTag}">
+              <TextBlock Classes="flabel" Text="{l:T tag.custom}" />
+              <TextBox Grid.Column="1" ToolTip.Tip="{l:T tag.hint}" Text="{Binding CustomTag}" />
+              <TextBlock Grid.Row="1" Grid.Column="1" Classes="hint" Text="{l:T tag.invalid}" IsVisible="{Binding InvalidTag}" />
+            </Grid>
+          </StackPanel>
+
+          <!-- ========== Jobs ========== -->
+          <StackPanel IsVisible="{Binding IsJobs}">
+            <TextBlock Classes="pagetitle" Text="{l:T settings.jobs.title}" />
+            <TextBlock Classes="pagedesc" Text="{l:T settings.jobs.desc}" />
+            <Grid Classes="fld" ColumnDefinitions="180,*" RowDefinitions="Auto,Auto">
+              <TextBlock Classes="flabel" Text="{l:T settings.jobs.parallel}" />
+              <ComboBox Grid.Column="1" ItemsSource="{Binding JobOptions}" ToolTip.Tip="{Binding ParallelHint}" SelectedItem="{Binding SelectedJobs}" />
+              <TextBlock Grid.Row="1" Grid.Column="1" Classes="hint" Text="{Binding ParallelHint}" />
+            </Grid>
+
+            <CheckBox ToolTip.Tip="{l:T settings.jobs.resume.hint}" IsChecked="{Binding Resume}" Margin="0,0,0,10">
+              <StackPanel>
+                <TextBlock Text="{l:T settings.jobs.resume}" />
+                <TextBlock Classes="hint" Text="{l:T settings.jobs.resume.hint}" />
+              </StackPanel>
+            </CheckBox>
+            <CheckBox ToolTip.Tip="{l:T settings.jobs.overwrite.hint}" IsChecked="{Binding Overwrite}" Margin="0,0,0,6">
+              <StackPanel>
+                <TextBlock Text="{l:T settings.jobs.overwrite}" />
+                <TextBlock Classes="hint" Text="{l:T settings.jobs.overwrite.hint}" />
+              </StackPanel>
+            </CheckBox>
+            <Border Classes="warnbox" IsVisible="{Binding Overwrite}" Margin="28,0,0,8">
+              <TextBlock Text="{l:T settings.jobs.overwrite.warning}" />
+            </Border>
+            <CheckBox IsChecked="{Binding PreserveTimestamp}" IsEnabled="{Binding Overwrite}" Margin="0,0,0,16">
+              <TextBlock Text="{l:T settings.jobs.preserve_ts}" />
+            </CheckBox>
+
+            <Grid Classes="fld" ColumnDefinitions="180,*">
+              <TextBlock Classes="flabel" Text="{l:T settings.jobs.after}" />
+              <ComboBox Grid.Column="1" ItemsSource="{Binding AfterOptions}" SelectedItem="{Binding SelectedAfter}" />
+            </Grid>
+            <CheckBox IsChecked="{Binding Notify}" Margin="0,0,0,8">
+              <TextBlock Text="{l:T settings.jobs.notify}" />
+            </CheckBox>
+            <CheckBox IsChecked="{Binding CheckUpdates}">
+              <TextBlock Text="{l:T settings.jobs.check_updates}" />
+            </CheckBox>
+          </StackPanel>
+
+          <!-- ========== Pfade & Tools ========== -->
+          <StackPanel IsVisible="{Binding IsTools}">
+            <TextBlock Classes="pagetitle" Text="{l:T settings.tools.title}" />
+            <TextBlock Classes="pagedesc" Text="{l:T settings.tools.desc}" />
+
+            <Grid Classes="fld" ColumnDefinitions="180,*,Auto" RowDefinitions="Auto,Auto">
+              <TextBlock Classes="flabel" Text="{l:T settings.tools.ffmpeg}" />
+              <TextBox Grid.Column="1" Classes="mono" ToolTip.Tip="{l:T tip.tools}" Text="{Binding FfmpegPath}" PlaceholderText="{l:T settings.tools.auto_placeholder}" />
+              <Button Grid.Column="2" Content="…" Margin="6,0,0,0" Click="OnBrowseFfmpeg" />
+              <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Classes="hint" Text="{Binding FfmpegStatus}"
+                         Classes.ok="{Binding FfmpegFound}" Classes.err="{Binding !FfmpegFound}" />
+            </Grid>
+            <Grid Classes="fld" ColumnDefinitions="180,*,Auto" RowDefinitions="Auto,Auto">
+              <TextBlock Classes="flabel" Text="{l:T settings.tools.ffprobe}" />
+              <TextBox Grid.Column="1" Classes="mono" ToolTip.Tip="{l:T tip.tools}" Text="{Binding FfprobePath}" PlaceholderText="{l:T settings.tools.auto_placeholder}" />
+              <Button Grid.Column="2" Content="…" Margin="6,0,0,0" Click="OnBrowseFfprobe" />
+              <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Classes="hint" Text="{Binding FfprobeStatus}"
+                         Classes.ok="{Binding FfprobeFound}" Classes.err="{Binding !FfprobeFound}" />
+            </Grid>
+            <Grid Classes="fld" ColumnDefinitions="180,*,Auto" RowDefinitions="Auto,Auto">
+              <TextBlock Classes="flabel" Text="{l:T output.title}" />
+              <TextBox Grid.Column="1" Classes="mono" ToolTip.Tip="{l:T settings.tools.output.hint}" Text="{Binding OutputFolder}" PlaceholderText="{l:T output.placeholder}" IsEnabled="{Binding !Overwrite}" />
+              <Button Grid.Column="2" Content="…" Margin="6,0,0,0" Click="OnBrowseOutput" IsEnabled="{Binding !Overwrite}" />
+              <TextBlock Grid.Row="1" Grid.Column="1" Classes="hint" Text="{l:T settings.tools.output.hint}" IsVisible="{Binding !Overwrite}" />
+              <TextBlock Grid.Row="1" Grid.Column="1" Classes="hint" Text="{l:T output.overwrite_active}" IsVisible="{Binding Overwrite}" />
+            </Grid>
+            <Grid Classes="fld" ColumnDefinitions="180,*,Auto" RowDefinitions="Auto,Auto">
+              <TextBlock Classes="flabel" Text="{l:T settings.tools.tempdir}" />
+              <TextBox Grid.Column="1" Classes="mono" ToolTip.Tip="{l:T settings.tools.tempdir.hint}" Text="{Binding TempWorkDir}" PlaceholderText="{l:T settings.tools.tempdir.placeholder}" />
+              <Button Grid.Column="2" Content="…" Margin="6,0,0,0" Click="OnBrowseTemp" />
+              <TextBlock Grid.Row="1" Grid.Column="1" Classes="hint" Text="{l:T settings.tools.tempdir.hint}" />
+            </Grid>
+            <Grid Classes="fld" ColumnDefinitions="180,*,Auto">
+              <TextBlock Classes="flabel" Text="{l:T settings.tools.data_folder}" />
+              <SelectableTextBlock Grid.Column="1" Classes="mono" Text="{Binding DataDir}" VerticalAlignment="Center" TextWrapping="Wrap" />
+              <Button Grid.Column="2" Content="…" Margin="6,0,0,0" Command="{Binding OpenDataFolderCommand}" />
+            </Grid>
+            <Button Content="{l:T settings.tools.resume_clear}" Command="{Binding ClearResumeCommand}" Margin="0,6,0,0" />
+          </StackPanel>
+        </Panel>
+      </ScrollViewer>
+    </Grid>
+  </DockPanel>
+</Window>

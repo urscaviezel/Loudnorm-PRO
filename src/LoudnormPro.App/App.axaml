@@ -1,0 +1,203 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="LoudnormPro.App.App"
+             Name="Loudnorm PRO"
+             RequestedThemeVariant="Dark">
+
+  <Application.Resources>
+    <ResourceDictionary>
+      <!-- ============================================================
+           Farbschema nach pfdhub.com (CSS-Variablen pfd-*)
+           ============================================================ -->
+      <ResourceDictionary.ThemeDictionaries>
+
+        <ResourceDictionary x:Key="Dark">
+          <SolidColorBrush x:Key="LnBg" Color="#070B1A" />
+          <SolidColorBrush x:Key="LnSurface" Color="#0E1530" />
+          <SolidColorBrush x:Key="LnSurface2" Color="#151D3C" />
+          <SolidColorBrush x:Key="LnSurface3" Color="#1C2650" />
+          <SolidColorBrush x:Key="LnBorder" Color="#253056" />
+          <SolidColorBrush x:Key="LnBorderStrong" Color="#33417A" />
+          <SolidColorBrush x:Key="LnText" Color="#DCE1F0" />
+          <SolidColorBrush x:Key="LnHeading" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="LnMuted" Color="#8E98B8" />
+          <SolidColorBrush x:Key="LnAccent" Color="#22D3FF" />
+          <SolidColorBrush x:Key="LnAccent2" Color="#9B5CFF" />
+          <SolidColorBrush x:Key="LnAccentSoft" Color="#1F22D3FF" />
+          <SolidColorBrush x:Key="LnVioletSoft" Color="#249B5CFF" />
+          <SolidColorBrush x:Key="LnOk" Color="#34D399" />
+          <SolidColorBrush x:Key="LnOkSoft" Color="#2434D399" />
+          <SolidColorBrush x:Key="LnWarn" Color="#FBBF24" />
+          <SolidColorBrush x:Key="LnWarnSoft" Color="#24FBBF24" />
+          <SolidColorBrush x:Key="LnErr" Color="#F87171" />
+          <SolidColorBrush x:Key="LnErrSoft" Color="#24F87171" />
+          <SolidColorBrush x:Key="LnScrim" Color="#8C03050D" />
+
+          <!-- Fluent-Overrides -->
+          <SolidColorBrush x:Key="TextControlBackground" Color="#151D3C" />
+          <SolidColorBrush x:Key="TextControlBackgroundPointerOver" Color="#1C2650" />
+          <SolidColorBrush x:Key="TextControlBackgroundFocused" Color="#151D3C" />
+          <SolidColorBrush x:Key="TextControlBorderBrush" Color="#253056" />
+          <SolidColorBrush x:Key="TextControlBorderBrushPointerOver" Color="#33417A" />
+          <SolidColorBrush x:Key="TextControlBorderBrushFocused" Color="#22D3FF" />
+          <SolidColorBrush x:Key="TextControlForeground" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="TextControlForegroundPointerOver" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="TextControlForegroundFocused" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="TextControlPlaceholderForeground" Color="#8E98B8" />
+          <SolidColorBrush x:Key="TextControlPlaceholderForegroundPointerOver" Color="#8E98B8" />
+          <SolidColorBrush x:Key="TextControlPlaceholderForegroundFocused" Color="#8E98B8" />
+          <SolidColorBrush x:Key="ComboBoxBackground" Color="#151D3C" />
+          <SolidColorBrush x:Key="ComboBoxBackgroundPointerOver" Color="#1C2650" />
+          <SolidColorBrush x:Key="ComboBoxBackgroundPressed" Color="#1C2650" />
+          <SolidColorBrush x:Key="ComboBoxBackgroundDisabled" Color="#0E1530" />
+          <SolidColorBrush x:Key="ComboBoxBorderBrush" Color="#253056" />
+          <SolidColorBrush x:Key="ComboBoxBorderBrushPointerOver" Color="#33417A" />
+          <SolidColorBrush x:Key="ComboBoxDropDownBackground" Color="#0E1530" />
+          <SolidColorBrush x:Key="ComboBoxDropDownBorderBrush" Color="#33417A" />
+          <SolidColorBrush x:Key="ComboBoxForeground" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="ButtonBackground" Color="#151D3C" />
+          <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#1C2650" />
+          <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="#253056" />
+          <SolidColorBrush x:Key="ButtonBackgroundDisabled" Color="#0E1530" />
+          <SolidColorBrush x:Key="ButtonBorderBrush" Color="#253056" />
+          <SolidColorBrush x:Key="ButtonBorderBrushPointerOver" Color="#33417A" />
+          <SolidColorBrush x:Key="ButtonBorderBrushPressed" Color="#33417A" />
+          <SolidColorBrush x:Key="ButtonBorderBrushDisabled" Color="#1C2650" />
+          <SolidColorBrush x:Key="ButtonForeground" Color="#DCE1F0" />
+          <SolidColorBrush x:Key="ButtonForegroundPointerOver" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="ButtonForegroundPressed" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="ButtonForegroundDisabled" Color="#5A6488" />
+          <SolidColorBrush x:Key="MenuFlyoutPresenterBackground" Color="#0E1530" />
+          <SolidColorBrush x:Key="MenuFlyoutPresenterBorderBrush" Color="#33417A" />
+          <SolidColorBrush x:Key="MenuFlyoutItemBackgroundPointerOver" Color="#1F22D3FF" />
+          <SolidColorBrush x:Key="MenuFlyoutItemBackgroundPressed" Color="#3322D3FF" />
+          <SolidColorBrush x:Key="MenuFlyoutItemForeground" Color="#DCE1F0" />
+          <SolidColorBrush x:Key="MenuFlyoutItemForegroundPointerOver" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="MenuFlyoutItemKeyboardAcceleratorTextForeground" Color="#8E98B8" />
+          <SolidColorBrush x:Key="MenuFlyoutSubItemChevron" Color="#8E98B8" />
+          <SolidColorBrush x:Key="ToolTipBackground" Color="#151D3C" />
+          <SolidColorBrush x:Key="ToolTipBorderBrush" Color="#33417A" />
+          <SolidColorBrush x:Key="ToolTipForeground" Color="#DCE1F0" />
+          <SolidColorBrush x:Key="ScrollBarThumbFill" Color="#33417A" />
+        </ResourceDictionary>
+
+        <ResourceDictionary x:Key="Light">
+          <SolidColorBrush x:Key="LnBg" Color="#F0F4FB" />
+          <SolidColorBrush x:Key="LnSurface" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="LnSurface2" Color="#F5F7FC" />
+          <SolidColorBrush x:Key="LnSurface3" Color="#E7EDF8" />
+          <SolidColorBrush x:Key="LnBorder" Color="#D5DDEF" />
+          <SolidColorBrush x:Key="LnBorderStrong" Color="#B9C5E0" />
+          <SolidColorBrush x:Key="LnText" Color="#1E2742" />
+          <SolidColorBrush x:Key="LnHeading" Color="#001B4C" />
+          <SolidColorBrush x:Key="LnMuted" Color="#5D6889" />
+          <SolidColorBrush x:Key="LnAccent" Color="#0A8FB5" />
+          <SolidColorBrush x:Key="LnAccent2" Color="#7C3AED" />
+          <SolidColorBrush x:Key="LnAccentSoft" Color="#1A0A8FB5" />
+          <SolidColorBrush x:Key="LnVioletSoft" Color="#1A7C3AED" />
+          <SolidColorBrush x:Key="LnOk" Color="#059669" />
+          <SolidColorBrush x:Key="LnOkSoft" Color="#1A059669" />
+          <SolidColorBrush x:Key="LnWarn" Color="#B45309" />
+          <SolidColorBrush x:Key="LnWarnSoft" Color="#1AB45309" />
+          <SolidColorBrush x:Key="LnErr" Color="#DC2626" />
+          <SolidColorBrush x:Key="LnErrSoft" Color="#1ADC2626" />
+          <SolidColorBrush x:Key="LnScrim" Color="#40001B4C" />
+
+          <SolidColorBrush x:Key="TextControlBackground" Color="#F5F7FC" />
+          <SolidColorBrush x:Key="TextControlBackgroundPointerOver" Color="#E7EDF8" />
+          <SolidColorBrush x:Key="TextControlBackgroundFocused" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="TextControlBorderBrush" Color="#D5DDEF" />
+          <SolidColorBrush x:Key="TextControlBorderBrushPointerOver" Color="#B9C5E0" />
+          <SolidColorBrush x:Key="TextControlBorderBrushFocused" Color="#0A8FB5" />
+          <SolidColorBrush x:Key="TextControlForeground" Color="#001B4C" />
+          <SolidColorBrush x:Key="TextControlForegroundPointerOver" Color="#001B4C" />
+          <SolidColorBrush x:Key="TextControlForegroundFocused" Color="#001B4C" />
+          <SolidColorBrush x:Key="TextControlPlaceholderForeground" Color="#5D6889" />
+          <SolidColorBrush x:Key="TextControlPlaceholderForegroundPointerOver" Color="#5D6889" />
+          <SolidColorBrush x:Key="TextControlPlaceholderForegroundFocused" Color="#5D6889" />
+          <SolidColorBrush x:Key="ComboBoxBackground" Color="#F5F7FC" />
+          <SolidColorBrush x:Key="ComboBoxBackgroundPointerOver" Color="#E7EDF8" />
+          <SolidColorBrush x:Key="ComboBoxBackgroundPressed" Color="#E7EDF8" />
+          <SolidColorBrush x:Key="ComboBoxBackgroundDisabled" Color="#F0F4FB" />
+          <SolidColorBrush x:Key="ComboBoxBorderBrush" Color="#D5DDEF" />
+          <SolidColorBrush x:Key="ComboBoxBorderBrushPointerOver" Color="#B9C5E0" />
+          <SolidColorBrush x:Key="ComboBoxDropDownBackground" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="ComboBoxDropDownBorderBrush" Color="#B9C5E0" />
+          <SolidColorBrush x:Key="ComboBoxForeground" Color="#001B4C" />
+          <SolidColorBrush x:Key="ButtonBackground" Color="#F5F7FC" />
+          <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#E7EDF8" />
+          <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="#D5DDEF" />
+          <SolidColorBrush x:Key="ButtonBackgroundDisabled" Color="#F0F4FB" />
+          <SolidColorBrush x:Key="ButtonBorderBrush" Color="#D5DDEF" />
+          <SolidColorBrush x:Key="ButtonBorderBrushPointerOver" Color="#B9C5E0" />
+          <SolidColorBrush x:Key="ButtonBorderBrushPressed" Color="#B9C5E0" />
+          <SolidColorBrush x:Key="ButtonBorderBrushDisabled" Color="#E7EDF8" />
+          <SolidColorBrush x:Key="ButtonForeground" Color="#1E2742" />
+          <SolidColorBrush x:Key="ButtonForegroundPointerOver" Color="#001B4C" />
+          <SolidColorBrush x:Key="ButtonForegroundPressed" Color="#001B4C" />
+          <SolidColorBrush x:Key="ButtonForegroundDisabled" Color="#9AA4C0" />
+          <SolidColorBrush x:Key="MenuFlyoutPresenterBackground" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="MenuFlyoutPresenterBorderBrush" Color="#B9C5E0" />
+          <SolidColorBrush x:Key="MenuFlyoutItemBackgroundPointerOver" Color="#1A0A8FB5" />
+          <SolidColorBrush x:Key="MenuFlyoutItemBackgroundPressed" Color="#330A8FB5" />
+          <SolidColorBrush x:Key="MenuFlyoutItemForeground" Color="#1E2742" />
+          <SolidColorBrush x:Key="MenuFlyoutItemForegroundPointerOver" Color="#001B4C" />
+          <SolidColorBrush x:Key="MenuFlyoutItemKeyboardAcceleratorTextForeground" Color="#5D6889" />
+          <SolidColorBrush x:Key="MenuFlyoutSubItemChevron" Color="#5D6889" />
+          <SolidColorBrush x:Key="ToolTipBackground" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="ToolTipBorderBrush" Color="#B9C5E0" />
+          <SolidColorBrush x:Key="ToolTipForeground" Color="#1E2742" />
+          <SolidColorBrush x:Key="ScrollBarThumbFill" Color="#B9C5E0" />
+        </ResourceDictionary>
+      </ResourceDictionary.ThemeDictionaries>
+
+      <LinearGradientBrush x:Key="LnGradient" StartPoint="0%,50%" EndPoint="100%,50%">
+        <GradientStop Offset="0" Color="#22D3FF" />
+        <GradientStop Offset="1" Color="#9B5CFF" />
+      </LinearGradientBrush>
+      <LinearGradientBrush x:Key="LnGradientHover" StartPoint="0%,50%" EndPoint="100%,50%">
+        <GradientStop Offset="0" Color="#4ADCFF" />
+        <GradientStop Offset="1" Color="#AC78FF" />
+      </LinearGradientBrush>
+      <LinearGradientBrush x:Key="LnGradientVertical" StartPoint="50%,0%" EndPoint="50%,100%">
+        <GradientStop Offset="0" Color="#22D3FF" />
+        <GradientStop Offset="1" Color="#9B5CFF" />
+      </LinearGradientBrush>
+
+      <FontFamily x:Key="LnMono">Cascadia Mono, Consolas, Menlo, SF Mono, DejaVu Sans Mono, monospace</FontFamily>
+
+      <!-- Icons (Linien, 24x24) -->
+      <StreamGeometry x:Key="IconWave">M3,12 L5,12 M7,8 L7,16 M11,5 L11,19 M15,9 L15,15 M19,11 L19,13</StreamGeometry>
+      <StreamGeometry x:Key="IconPlus">M12,5 L12,19 M5,12 L19,12</StreamGeometry>
+      <StreamGeometry x:Key="IconFolder">M3,7 C3,5.9 3.9,5 5,5 L9,5 L11,7 L19,7 C20.1,7 21,7.9 21,9 L21,17 C21,18.1 20.1,19 19,19 L5,19 C3.9,19 3,18.1 3,17 Z</StreamGeometry>
+      <StreamGeometry x:Key="IconVideo">M5,6 L14,6 C15.1,6 16,6.9 16,8 L16,16 C16,17.1 15.1,18 14,18 L5,18 C3.9,18 3,17.1 3,16 L3,8 C3,6.9 3.9,6 5,6 Z M16,10 L21,7 L21,17 L16,14</StreamGeometry>
+      <StreamGeometry x:Key="IconTrash">M4,7 L20,7 M10,11 L10,17 M14,11 L14,17 M6,7 L7,20 L17,20 L18,7 M9,7 L9,4 L15,4 L15,7</StreamGeometry>
+      <StreamGeometry x:Key="IconUpload">M12,16 L12,4 M7,9 L12,4 L17,9 M4,16 L4,19 C4,19.6 4.4,20 5,20 L19,20 C19.6,20 20,19.6 20,19 L20,16</StreamGeometry>
+      <StreamGeometry x:Key="IconCopy">M11,9 L18,9 C19.1,9 20,9.9 20,11 L20,18 C20,19.1 19.1,20 18,20 L11,20 C9.9,20 9,19.1 9,18 L9,11 C9,9.9 9.9,9 11,9 Z M5,15 L5,5 C5,4.4 5.4,4 6,4 L15,4</StreamGeometry>
+      <StreamGeometry x:Key="IconSave">M12,4 L12,15 M7,10 L12,15 L17,10 M5,20 L19,20</StreamGeometry>
+      <StreamGeometry x:Key="IconClear">M4,7 L20,7 M6,7 L7,20 L17,20 L18,7</StreamGeometry>
+      <StreamGeometry x:Key="IconPlay">M8,5 L8,19 L19,12 Z</StreamGeometry>
+      <StreamGeometry x:Key="IconStop">M7.5,6 L16.5,6 C17.3,6 18,6.7 18,7.5 L18,16.5 C18,17.3 17.3,18 16.5,18 L7.5,18 C6.7,18 6,17.3 6,16.5 L6,7.5 C6,6.7 6.7,6 7.5,6 Z</StreamGeometry>
+      <StreamGeometry x:Key="IconClose">M6,6 L18,18 M18,6 L6,18</StreamGeometry>
+      <StreamGeometry x:Key="IconCheck">M5,12 L10,17 L19,7</StreamGeometry>
+      <StreamGeometry x:Key="IconScroll">M12,5 L12,19 M6,13 L12,19 L18,13</StreamGeometry>
+      <StreamGeometry x:Key="IconSettings">M4,6 L14,6 M18,6 L20,6 M4,12 L8,12 M12,12 L20,12 M4,18 L16,18 M20,18 L20,18 M16,4 L16,8 M10,10 L10,14 M18,16 L18,20</StreamGeometry>
+      <StreamGeometry x:Key="IconMusic">M9,18 L9,5 L21,3 L21,16 M6,15 A3,3 0 1 1 6,21 A3,3 0 1 1 6,15 Z M18,13 A3,3 0 1 1 18,19 A3,3 0 1 1 18,13 Z</StreamGeometry>
+      <StreamGeometry x:Key="IconCpu">M6,4 L18,4 C19.1,4 20,4.9 20,6 L20,18 C20,19.1 19.1,20 18,20 L6,20 C4.9,20 4,19.1 4,18 L4,6 C4,4.9 4.9,4 6,4 Z M9,9 L15,9 L15,15 L9,15 Z</StreamGeometry>
+      <StreamGeometry x:Key="IconTool">M14.7,6.3 A4,4 0 0 0 9.3,11.7 L3,18 L6,21 L12.3,14.7 A4,4 0 0 0 17.7,9.3 L15.2,11.8 L12.8,11.2 L12.2,8.8 Z</StreamGeometry>
+    </ResourceDictionary>
+  </Application.Resources>
+
+  <Application.Styles>
+    <FluentTheme>
+      <FluentTheme.Palettes>
+        <ColorPaletteResources x:Key="Dark" Accent="#22D3FF" RegionColor="#070B1A" />
+        <ColorPaletteResources x:Key="Light" Accent="#0A8FB5" RegionColor="#F0F4FB" />
+      </FluentTheme.Palettes>
+    </FluentTheme>
+    <Style Selector=":is(Window).tipsOff :is(Control)">
+      <Setter Property="ToolTip.ServiceEnabled" Value="False" />
+    </Style>
+    <StyleInclude Source="avares://LoudnormPRO/Themes/Styles.axaml" />
+  </Application.Styles>
+</Application>
